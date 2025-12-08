@@ -1,0 +1,26 @@
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flx {
+  display: flex;
+  align-items: center;
+}
+
+.flbx {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tr {
+  transition: 300ms;
+}
+
+.container {
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-inline: 32px;
+}

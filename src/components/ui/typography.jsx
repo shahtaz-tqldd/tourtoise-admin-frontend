@@ -1,0 +1,30 @@
+import React from "react";
+import clsx from "clsx";
+
+export function Title({ children, variant = "md", className }) {
+  const sizeClasses = {
+    lg: "text-2xl md:text-3xl font-semibold",
+    md: "text-lg md:text-xl font-bold",
+    sm: "text-base md:text-lg font-extrabold",
+  };
+
+  return (
+    <h2 className={clsx(sizeClasses[variant], "text-black/75", className)}>
+      {children}
+    </h2>
+  );
+}
+
+export function Text({ children, variant = "md", className }) {
+  const sizeClasses = {
+    lg: "text-base md:text-lg",
+    md: "text-sm md:text-base",
+    sm: "text-xs md:text-sm",
+  };
+
+  return (
+    <p className={clsx(sizeClasses[variant], "text-black/60", className)}>
+      {children}
+    </p>
+  );
+}

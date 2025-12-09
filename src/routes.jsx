@@ -5,6 +5,8 @@ import LoginPage from "./pages/auth/login";
 import RegisterPage from "./pages/auth/register";
 import ForgotPasswordPage from "./pages/auth/forgot-password";
 import ResetPasswordPage from "./pages/auth/reset-password";
+import DestinationsPage from "./pages/destinations";
+import AddDestinationPage from "./pages/add-destinations";
 
 export const routes = createBrowserRouter([
   {
@@ -14,6 +16,14 @@ export const routes = createBrowserRouter([
       {
         path: "/",
         element: <Overview />,
+      },
+      {
+        path: "/destinations",
+        element: <DestinationsPage />,
+      },
+      {
+        path: "/destinations/new-destination",
+        element: <AddDestinationPage />,
       },
     ],
   },

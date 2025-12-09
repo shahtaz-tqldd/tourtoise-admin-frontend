@@ -3,13 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
-  Package,
-  ShoppingBag,
-  LineChart,
-  MessageSquare,
-  Shield,
-  Store,
-  Tags,
+  PlaneTakeoff,
   Settings,
 } from "lucide-react";
 // import logo from "@/assets/images/logo.svg";
@@ -26,39 +20,16 @@ const SideMenu = () => {
     },
     {
       id: 2,
-      label: "Customers",
-      link: "/customers",
+      label: "Tourists",
+      link: "/tourists",
       icon: <Users size={18} />,
     },
     {
       id: 3,
-      label: "Products",
-      link: "/products",
-      icon: <Package size={18} />,
+      label: "Destinations",
+      link: "/destinations",
+      icon: <PlaneTakeoff size={18} />,
     },
-    {
-      id: 4,
-      label: "Orders",
-      link: "/orders",
-      icon: <ShoppingBag size={18} />,
-    },
-    { id: 5, label: "Sales", link: "/sales", icon: <LineChart size={18} /> },
-    {
-      id: 6,
-      label: "Messages",
-      link: "/messages",
-      icon: <MessageSquare size={18} />,
-    },
-    { id: 9, label: "Coupons", link: "/coupons", icon: <Tags size={18} /> },
-    {
-      id: 7,
-      label: "Roles & Permissions",
-      link: "/roles-and-permissions",
-      icon: <Shield size={18} />,
-    },
-    
-    // 💡 Additional eCommerce admin suggested:
-    { id: 8, label: "Storefront", link: "/store", icon: <Store size={18} /> },
     {
       id: 10,
       label: "Account Settings",

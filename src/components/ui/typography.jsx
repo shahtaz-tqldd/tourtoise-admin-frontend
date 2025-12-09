@@ -3,7 +3,7 @@ import clsx from "clsx";
 
 export function Title({ children, variant = "md", className }) {
   const sizeClasses = {
-    lg: "text-2xl md:text-3xl font-semibold",
+    lg: "text-xl md:text-2xl font-semibold",
     md: "text-lg md:text-xl font-bold",
     sm: "text-base md:text-lg font-extrabold",
   };

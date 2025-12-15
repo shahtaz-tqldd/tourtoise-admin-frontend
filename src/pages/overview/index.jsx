@@ -2,6 +2,29 @@ import React from "react";
 import { Text, Title } from "@/components/ui/typography";
 
 const Overview = () => {
+  const overview_stats = [
+    {
+      title: "Account Created",
+      value_count: "3200",
+      subtitle: "120 New account on this month",
+    },
+    {
+      title: "Trip Planned",
+      value_count: "120",
+      subtitle: "12 New trips planned this month",
+    },
+    {
+      title: "Destinations",
+      value_count: "20",
+      subtitle: "5 new destination added",
+    },
+    {
+      title: "AI Message count",
+      value_count: "32100",
+      subtitle: "200 New messages this month",
+    },
+  ];
+
   return (
     <div className="space-y-12">
       {/* Page Title */}
@@ -16,30 +39,17 @@ const Overview = () => {
       {/* Stats section */}
       <section>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-          <div className="bg-gray-100 rounded-lg p-6">
-            <Title variant="sm">Total Revenue</Title>
-            <Text variant="sm" className="mt-2">
-              Display total revenue generated over selected period.
-            </Text>
-          </div>
-          <div className="bg-gray-100 rounded-lg p-6">
-            <Title variant="sm">Orders</Title>
-            <Text variant="sm" className="mt-2">
-              Total number of orders and order distribution summary.
-            </Text>
-          </div>
-          <div className="bg-gray-100 rounded-lg p-6">
-            <Title variant="sm">Customers</Title>
-            <Text variant="sm" className="mt-2">
-              Total active customers and new sign-ups.
-            </Text>
-          </div>
-          <div className="bg-gray-100 rounded-lg p-6">
-            <Title variant="sm">Products</Title>
-            <Text variant="sm" className="mt-2">
-              Inventory count, active products, and stock warnings.
-            </Text>
-          </div>
+          {overview_stats?.map((item, index) => (
+            <div key={index} className="bg-gray-100 rounded-lg p-6">
+              <Title variant="sm">{item.title}</Title>
+              <Title variant="xl" className="mt-2">
+                {item.value_count}
+              </Title>
+              <Text variant="sm" className="mt-4">
+                {item.subtitle}
+              </Text>
+            </div>
+          ))}
         </div>
       </section>
 

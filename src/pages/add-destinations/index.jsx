@@ -19,21 +19,21 @@ import {
   X,
   Info,
   MapPin,
-  Globe,
   Calendar,
-  DollarSign,
-  Users,
   Utensils,
   Hotel,
   Car,
   Camera,
+  Palmtree,
 } from "lucide-react";
-import { Title } from "@/components/ui/typography";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Text, Title } from "@/components/ui/typography";
+import { useCreateNewDestinationMutation } from "@/features/destination/destinationApiSlice";
 
 const AddDestinationPage = () => {
   const [destinationImages, setDestinationImages] = useState([]);
 
-  const { register, control, handleSubmit } = useForm({
+  const { register, control, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
       name: "",
       description: "",
@@ -62,47 +62,49 @@ const AddDestinationPage = () => {
       signatureDishes: [],
       accommodations: [],
       attractions: [],
-      restaurants: [],
     },
   });
+
+  const {
+    fields: transportFields,
+    append: addTransport,
+    remove: removeTransport,
+  } = useFieldArray({ control, name: "transportOptions" });
+
+  const {
+    fields: activityFields,
+    append: addActivity,
+    remove: removeActivity,
+  } = useFieldArray({ control, name: "activities" });
+
+  const {
+    fields: dishFields,
+    append: addDish,
+    remove: removeDish,
+  } = useFieldArray({ control, name: "signatureDishes" });
 
   const {
     fields: accommodationTypeFields,
     append: addAccommodationType,
     remove: removeAccommodationType,
   } = useFieldArray({ control, name: "accommodationTypes" });
-  const {
-    fields: transportFields,
-    append: addTransport,
-    remove: removeTransport,
-  } = useFieldArray({ control, name: "transportOptions" });
-  const {
-    fields: activityFields,
-    append: addActivity,
-    remove: removeActivity,
-  } = useFieldArray({ control, name: "activities" });
-  const {
-    fields: dishFields,
-    append: addDish,
-    remove: removeDish,
-  } = useFieldArray({ control, name: "signatureDishes" });
+
   const {
     fields: accommodationFields,
     append: addAccommodation,
     remove: removeAccommodation,
   } = useFieldArray({ control, name: "accommodations" });
+
   const {
     fields: attractionFields,
     append: addAttraction,
     remove: removeAttraction,
   } = useFieldArray({ control, name: "attractions" });
-  const {
-    fields: restaurantFields,
-    append: addRestaurant,
-    remove: removeRestaurant,
-  } = useFieldArray({ control, name: "restaurants" });
 
-  const onSubmit = (data) => {
+  const [createNewDestination, { isLoading, isSuccess, isError }] =
+    useCreateNewDestinationMutation();
+
+  const onSubmit = async (data) => {
     const finalData = {
       ...data,
       images: destinationImages,
@@ -126,9 +128,22 @@ const AddDestinationPage = () => {
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean),
+      attractions: data.attractions.map((attr) => ({
+        ...attr,
+        available_transports: attr.available_transports
+          ? attr.available_transports
+              .split(",")
+              .map((t) => t.trim())
+              .filter(Boolean)
+          : [],
+      })),
     };
     console.log("Destination Data:", finalData);
-    alert("Destination saved successfully! Check console for data.");
+    const res = await createNewDestination(finalData);
+    console.log(res);
+    if (res & res?.success) {
+      console.log("success");
+    }
   };
 
   const handleImageUpload = (e) => {
@@ -141,18 +156,35 @@ const AddDestinationPage = () => {
     setDestinationImages([...destinationImages, ...previews]);
   };
 
+  const handleAttractionImageUpload = (e, index) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setValue(`attractions.${index}.imageUrl`, reader.result);
+        setValue(`attractions.${index}.imageFile`, file);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const removeImage = (index) => {
     setDestinationImages(destinationImages.filter((_, i) => i !== index));
   };
 
+  const removeAttractionImage = (index) => {
+    setValue(`attractions.${index}.imageUrl`, "");
+    setValue(`attractions.${index}.imageFile`, null);
+  };
+
   return (
-    <div>
+    <div className="">
       <div className="flex justify-between items-start mb-8">
         <div>
           <Title variant="lg">Add New Destination</Title>
-          <p className="mt-2 text-gray-600">
+          <Text className="mt-2">
             Create a comprehensive travel destination listing
-          </p>
+          </Text>
         </div>
         <Button variant="outline" className="flex items-center gap-2">
           <Download size={18} />
@@ -160,14 +192,14 @@ const AddDestinationPage = () => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-3 space-y-6">
           {/* Basic Information */}
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-blue-600" />
+                <MapPin className="w-5 h-5 text-primary" />
                 <h2 className="text-lg font-semibold">Basic Information</h2>
               </div>
               <p className="text-sm text-gray-500">
@@ -208,7 +240,7 @@ const AddDestinationPage = () => {
                 <Label>Description *</Label>
                 <Textarea
                   rows={5}
-                  placeholder="Provide a captivating description of the destination, highlighting its unique features..."
+                  placeholder="Provide a captivating description of the destination..."
                   className="mt-1.5"
                   {...register("description", { required: true })}
                 />
@@ -251,7 +283,7 @@ const AddDestinationPage = () => {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Camera className="w-5 h-5 text-blue-600" />
+                <Camera className="w-5 h-5 text-primary" />
                 <h2 className="text-lg font-semibold">Destination Images</h2>
               </div>
               <p className="text-sm text-gray-500">
@@ -259,7 +291,7 @@ const AddDestinationPage = () => {
               </p>
             </CardHeader>
 
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary/75 transition-colors">
               <input
                 type="file"
                 multiple
@@ -301,79 +333,298 @@ const AddDestinationPage = () => {
             )}
           </Card>
 
-          {/* Travel Planning */}
+          {/* Attractions */}
           <Card>
             <CardHeader>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-blue-600" />
-                <h2 className="text-lg font-semibold">Travel Planning</h2>
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-md flex items-center justify-center bg-primary/10">
+                    <Palmtree className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold">Attractions</h2>
+                    <p className="text-sm text-gray-500">
+                      Add tourist spots with details
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    addAttraction({
+                      name: "",
+                      description: "",
+                      imageUrl: "",
+                      imageFile: null,
+                      tag: "",
+                      entryFee: "",
+                      openingHours: "",
+                      bestTimeToVisit: "",
+                      availableTransports: "",
+                      isRecommended: false,
+                      region: "",
+                      longitude: "",
+                      latitude: "",
+                    })
+                  }
+                >
+                  <Plus size={14} /> Attraction
+                </Button>
               </div>
             </CardHeader>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Best Time to Visit</Label>
-                <Input
-                  placeholder="e.g., November to March"
-                  className="mt-1.5"
-                  {...register("bestTime")}
-                />
-              </div>
-              <div>
-                <Label>Peak Season</Label>
-                <Input
-                  placeholder="e.g., December to February"
-                  className="mt-1.5"
-                  {...register("peakSeason")}
-                />
-              </div>
-              <div>
-                <Label>Average Duration</Label>
-                <Input
-                  placeholder="e.g., 2-3 days"
-                  className="mt-1.5"
-                  {...register("avgDuration")}
-                />
-              </div>
-              <Controller
-                control={control}
-                name="costLevel"
-                render={({ field }) => (
-                  <div>
-                    <Label>Cost Level *</Label>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className="mt-1.5 w-full">
-                        <SelectValue placeholder="Select cost level" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Low">Low</SelectItem>
-                        <SelectItem value="Medium">Medium</SelectItem>
-                        <SelectItem value="High">High</SelectItem>
-                      </SelectContent>
-                    </Select>
+            <div className="space-y-4">
+              {attractionFields.map((field, index) => {
+                const imageUrl = watch(`attractions.${index}.imageUrl`);
+
+                return (
+                  <div
+                    key={field.id}
+                    className="p-4 bg-gray-50 rounded-lg border"
+                  >
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="font-medium">Attraction #{index + 1}</h3>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeAttraction(index)}
+                        className="text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor={`attractions.${index}.name`}>
+                          Name *
+                        </Label>
+                        <Input
+                          id={`attractions.${index}.name`}
+                          placeholder="Attraction name"
+                          {...register(`attractions.${index}.name`, {
+                            required: true,
+                          })}
+                          className="mt-1.5"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor={`attractions.${index}.region`}>
+                          Region *
+                        </Label>
+                        <Input
+                          id={`attractions.${index}.region`}
+                          placeholder="e.g., Northern, Southern"
+                          {...register(`attractions.${index}.region`, {
+                            required: true,
+                          })}
+                          className="mt-1.5"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor={`attractions.${index}.tag`}>Tag</Label>
+                        <Controller
+                          control={control}
+                          name={`attractions.${index}.tag`}
+                          render={({ field }) => (
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
+                              <SelectTrigger className="mt-1.5 w-full">
+                                <SelectValue placeholder="Select Tag" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Nature">Nature</SelectItem>
+                                <SelectItem value="Historic">
+                                  Historic
+                                </SelectItem>
+                                <SelectItem value="Culture">Culture</SelectItem>
+                                <SelectItem value="Adventure">
+                                  Adventure
+                                </SelectItem>
+                                <SelectItem value="Photo Spot">
+                                  Photo Spot
+                                </SelectItem>
+                                <SelectItem value="Religious">
+                                  Religious
+                                </SelectItem>
+                                <SelectItem value="Beach">Beach</SelectItem>
+                                <SelectItem value="Shopping">
+                                  Shopping
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor={`attractions.${index}.entryFee`}>
+                          Entry Fee
+                        </Label>
+                        <Input
+                          id={`attractions.${index}.entryFee`}
+                          placeholder="e.g., 100 BDT or Free"
+                          {...register(`attractions.${index}.entryFee`)}
+                          className="mt-1.5"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor={`attractions.${index}.openingHours`}>
+                          Opening Hours
+                        </Label>
+                        <Input
+                          id={`attractions.${index}.openingHours`}
+                          placeholder="e.g., 9:00 AM - 5:00 PM"
+                          {...register(`attractions.${index}.openingHours`)}
+                          className="mt-1.5"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor={`attractions.${index}.bestTimeToVisit`}>
+                          Best Time to Visit
+                        </Label>
+                        <Input
+                          id={`attractions.${index}.bestTimeToVisit`}
+                          placeholder="e.g., Winter (Nov-Feb)"
+                          {...register(`attractions.${index}.bestTimeToVisit`)}
+                          className="mt-1.5"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor={`attractions.${index}.longitude`}>
+                          Longitude
+                        </Label>
+                        <Input
+                          id={`attractions.${index}.longitude`}
+                          type="number"
+                          step="0.0000001"
+                          placeholder="e.g., 90.4125"
+                          {...register(`attractions.${index}.longitude`)}
+                          className="mt-1.5"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor={`attractions.${index}.latitude`}>
+                          Latitude
+                        </Label>
+                        <Input
+                          id={`attractions.${index}.latitude`}
+                          type="number"
+                          step="0.0000001"
+                          placeholder="e.g., 23.8103"
+                          {...register(`attractions.${index}.latitude`)}
+                          className="mt-1.5"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <Label htmlFor={`attractions.${index}.description`}>
+                          Description
+                        </Label>
+                        <Textarea
+                          id={`attractions.${index}.description`}
+                          placeholder="Describe the attraction..."
+                          {...register(`attractions.${index}.description`)}
+                          className="mt-1.5"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <Label
+                          htmlFor={`attractions.${index}.availableTransports`}
+                        >
+                          Available Transports (comma-separated)
+                        </Label>
+                        <Input
+                          id={`attractions.${index}.availableTransports`}
+                          placeholder="e.g., Bus, Car, Boat"
+                          {...register(
+                            `attractions.${index}.availableTransports`
+                          )}
+                          className="mt-1.5"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2 max-w-xs">
+                        <Label>Attraction Image</Label>
+                        <div className="mt-1.5">
+                          {imageUrl ? (
+                            <div className="relative group">
+                              <img
+                                src={imageUrl}
+                                alt="Attraction preview"
+                                className="w-full h-48 object-cover rounded-lg border-2 border-gray-200"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeAttractionImage(index)}
+                                className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <X size={16} />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary/75 transition-colors">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                id={`attraction-image-${index}`}
+                                onChange={(e) =>
+                                  handleAttractionImageUpload(e, index)
+                                }
+                              />
+                              <label
+                                htmlFor={`attraction-image-${index}`}
+                                className="cursor-pointer"
+                              >
+                                <Upload className="w-10 h-10 text-gray-400 mx-auto mb-2" />
+                                <p className="text-sm font-medium text-gray-700">
+                                  Upload attraction image
+                                </p>
+                                <p className="text-xs text-gray-500 mt-1">
+                                  PNG, JPG or WEBP (max. 5MB)
+                                </p>
+                              </label>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Controller
+                          control={control}
+                          name={`attractions.${index}.isRecommended`}
+                          render={({ field }) => (
+                            <Checkbox
+                              id={`is_recommended_${index}`}
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          )}
+                        />
+                        <Label
+                          htmlFor={`is_recommended_${index}`}
+                          className="cursor-pointer"
+                        >
+                          Recommended
+                        </Label>
+                      </div>
+                    </div>
                   </div>
-                )}
-              />
-            </div>
-
-            <div className="mt-4">
-              <Label>Weather Information</Label>
-              <Textarea
-                rows={3}
-                placeholder="Describe the typical weather conditions..."
-                className="mt-1.5"
-                {...register("weather")}
-              />
-            </div>
-
-            <div className="mt-4">
-              <Label>Festivals & Events</Label>
-              <Textarea
-                rows={3}
-                placeholder="List major festivals and events..."
-                className="mt-1.5"
-                {...register("festivals")}
-              />
+                );
+              })}
             </div>
           </Card>
 
@@ -381,29 +632,33 @@ const AddDestinationPage = () => {
           <Card>
             <CardHeader>
               <div className="flex justify-between items-start">
-                <div className="flex items-center gap-2">
-                  <Hotel className="w-5 h-5 text-blue-600" />
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-md flex items-center justify-center bg-primary/10">
+                    <Hotel className="w-5 h-5 text-primary" />
+                  </div>
                   <div>
                     <h2 className="text-lg font-semibold">
                       Accommodation Types
                     </h2>
                     <p className="text-sm text-gray-500">
-                      Available accommodation categories
+                      Categories of accommodations available
                     </p>
                   </div>
                 </div>
                 <Button
                   type="button"
                   size="sm"
+                  variant="outline"
                   onClick={() =>
                     addAccommodationType({
-                      name: "",
+                      typeRefName: "",
                       priceRange: "",
+                      availability: "",
                       description: "",
                     })
                   }
                 >
-                  <Plus size={16} className="mr-1" /> Add Type
+                  <Plus size={14} /> Type
                 </Button>
               </div>
             </CardHeader>
@@ -412,29 +667,246 @@ const AddDestinationPage = () => {
               {accommodationTypeFields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="flex gap-3 p-4 bg-gray-50 rounded-lg border"
+                  className="p-4 bg-gray-50 rounded-lg border space-y-3"
                 >
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Type (e.g., Hotels)"
-                      {...register(`accommodationTypes.${index}.name`)}
+                  <div className="flex items-end gap-3">
+                    <div className="flex-1">
+                      <Label>Accommodation Type *</Label>
+                      <Input
+                        placeholder="e.g., Hotels, Resorts, Hostels"
+                        {...register(
+                          `accommodationTypes.${index}.typeRefName`,
+                          {
+                            required: true,
+                          }
+                        )}
+                        className="mt-1.5"
+                      />
+                    </div>
+
+                    <div className="flex-1">
+                      <Label>Price Range *</Label>
+                      <Input
+                        placeholder="e.g., 1,500 - 8,000 BDT"
+                        {...register(`accommodationTypes.${index}.priceRange`, {
+                          required: true,
+                        })}
+                        className="mt-1.5"
+                      />
+                    </div>
+
+                    <div className="flex-1">
+                      <Label>Availability</Label>
+                      <Input
+                        placeholder="e.g., Year-round, Seasonal"
+                        {...register(
+                          `accommodationTypes.${index}.availability`
+                        )}
+                        className="mt-1.5"
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeAccommodationType(index)}
+                      className="text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+
+                  <div>
+                    <Textarea
+                      placeholder="Additional notes about this accommodation type..."
+                      {...register(`accommodationTypes.${index}.description`)}
+                      className="min-h-[60px]"
                     />
                   </div>
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Price Range (e.g., 1,500 - 8,000 BDT)"
-                      {...register(`accommodationTypes.${index}.priceRange`)}
-                    />
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Specific Accommodations */}
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-md flex items-center justify-center bg-primary/10">
+                    <Hotel className="w-5 h-5 text-primary" />
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeAccommodationType(index)}
-                    className="text-red-600 hover:bg-red-50"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
+                  <div>
+                    <h2 className="text-lg font-semibold">
+                      Specific Accommodations
+                    </h2>
+                    <p className="text-sm text-gray-500">
+                      Individual properties with contact details
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    addAccommodation({
+                      name: "",
+                      accommodationTypeRef: "",
+                      priceRange: "",
+                      rating: "",
+                      distance: "",
+                      region: "",
+                      longitude: "",
+                      latitude: "",
+                      phone: "",
+                      email: "",
+                      website: "",
+                    })
+                  }
+                >
+                  <Plus size={14} /> Accommodation
+                </Button>
+              </div>
+            </CardHeader>
+
+            <div className="space-y-3">
+              {accommodationFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="p-4 bg-gray-50 rounded-lg border"
+                >
+                  <div className="flex justify-between items-center mb-3">
+                    <h3 className="font-medium">Accommodation #{index + 1}</h3>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeAccommodation(index)}
+                      className="text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>Name *</Label>
+                      <Input
+                        placeholder="Property name"
+                        {...register(`accommodations.${index}.name`, {
+                          required: true,
+                        })}
+                        className="mt-1.5"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Type Reference</Label>
+                      <Input
+                        placeholder="e.g., Hotels, Resorts"
+                        {...register(
+                          `accommodations.${index}.accommodationTypeRef`
+                        )}
+                        className="mt-1.5"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Price Range *</Label>
+                      <Input
+                        placeholder="e.g., 2,000 - 5,000 BDT/night"
+                        {...register(`accommodations.${index}.priceRange`, {
+                          required: true,
+                        })}
+                        className="mt-1.5"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Rating</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="9.99"
+                        placeholder="0.00 - 9.99"
+                        {...register(`accommodations.${index}.rating`)}
+                        className="mt-1.5"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Distance</Label>
+                      <Input
+                        placeholder="e.g., 5 km from city center"
+                        {...register(`accommodations.${index}.distance`)}
+                        className="mt-1.5"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Region *</Label>
+                      <Input
+                        placeholder="e.g., Downtown, Beachfront"
+                        {...register(`accommodations.${index}.region`, {
+                          required: true,
+                        })}
+                        className="mt-1.5"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Phone</Label>
+                      <Input
+                        placeholder="+8801234567890"
+                        {...register(`accommodations.${index}.phone`)}
+                        className="mt-1.5"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Email</Label>
+                      <Input
+                        type="email"
+                        placeholder="contact@property.com"
+                        {...register(`accommodations.${index}.email`)}
+                        className="mt-1.5"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <Label>Website</Label>
+                      <Input
+                        placeholder="https://www.property.com"
+                        {...register(`accommodations.${index}.website`)}
+                        className="mt-1.5"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Longitude</Label>
+                      <Input
+                        type="number"
+                        step="0.0000001"
+                        placeholder="e.g., 90.4125"
+                        {...register(`accommodations.${index}.longitude`)}
+                        className="mt-1.5"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Latitude</Label>
+                      <Input
+                        type="number"
+                        step="0.0000001"
+                        placeholder="e.g., 23.8103"
+                        {...register(`accommodations.${index}.latitude`)}
+                        className="mt-1.5"
+                      />
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -445,7 +917,9 @@ const AddDestinationPage = () => {
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-2">
-                  <Car className="w-5 h-5 text-blue-600" />
+                  <div className="h-10 w-10 flex items-center justify-center rounded-md bg-primary/10">
+                    <Car className="w-5 h-5 text-primary" />
+                  </div>
                   <div>
                     <h2 className="text-lg font-semibold">
                       Transportation Options
@@ -458,11 +932,17 @@ const AddDestinationPage = () => {
                 <Button
                   type="button"
                   size="sm"
+                  variant="outline"
                   onClick={() =>
-                    addTransport({ name: "", priceRange: "", availability: "" })
+                    addTransport({
+                      transportRefName: "",
+                      priceRange: "",
+                      availability: "",
+                      description: "",
+                    })
                   }
                 >
-                  <Plus size={16} className="mr-1" /> Add Transport
+                  <Plus size={14} /> Transport
                 </Button>
               </div>
             </CardHeader>
@@ -471,35 +951,57 @@ const AddDestinationPage = () => {
               {transportFields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="flex gap-3 p-4 bg-gray-50 rounded-lg border"
+                  className="p-4 bg-gray-50 rounded-lg border space-y-3"
                 >
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Type (e.g., CNG/Auto-rickshaw)"
-                      {...register(`transportOptions.${index}.name`)}
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <Label>Transport Type *</Label>
+                      <Input
+                        placeholder="e.g., CNG, Taxi, Bus"
+                        {...register(
+                          `transportOptions.${index}.transportRefName`,
+                          {
+                            required: true,
+                          }
+                        )}
+                        className="mt-1.5"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Label>Price Range *</Label>
+                      <Input
+                        placeholder="e.g., 100 - 300 BDT"
+                        {...register(`transportOptions.${index}.priceRange`, {
+                          required: true,
+                        })}
+                        className="mt-1.5"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Label>Availability</Label>
+                      <Input
+                        placeholder="e.g., 24/7, 6 AM - 10 PM"
+                        {...register(`transportOptions.${index}.availability`)}
+                        className="mt-1.5"
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeTransport(index)}
+                      className="text-red-600 hover:bg-red-50 mt-6"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+                  <div>
+                    <Textarea
+                      placeholder="Additional notes (local tips, booking info, etc.)"
+                      {...register(`transportOptions.${index}.description`)}
+                      className="min-h-[60px]"
                     />
                   </div>
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Price Range (e.g., 100 - 300 BDT)"
-                      {...register(`transportOptions.${index}.priceRange`)}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Availability (e.g., 24/7)"
-                      {...register(`transportOptions.${index}.availability`)}
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeTransport(index)}
-                    className="text-red-600 hover:bg-red-50"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
                 </div>
               ))}
             </div>
@@ -511,21 +1013,27 @@ const AddDestinationPage = () => {
               <div className="flex justify-between items-start">
                 <div>
                   <h2 className="text-lg font-semibold">Activities</h2>
-                  <p className="text-sm text-gray-500">Things to do</p>
+                  <p className="text-sm text-gray-500">
+                    Things to do at destination
+                  </p>
                 </div>
                 <Button
                   type="button"
                   size="sm"
+                  variant="outline"
                   onClick={() =>
                     addActivity({
-                      name: "",
+                      activityRefName: "",
                       priceRange: "",
                       duration: "",
-                      difficulty: "",
+                      bestSeason: "",
+                      bookingRequired: false,
+                      isPopular: false,
+                      description: "",
                     })
                   }
                 >
-                  <Plus size={16} className="mr-1" /> Add Activity
+                  <Plus size={14} /> Activity
                 </Button>
               </div>
             </CardHeader>
@@ -536,35 +1044,105 @@ const AddDestinationPage = () => {
                   key={field.id}
                   className="p-4 bg-gray-50 rounded-lg border space-y-3"
                 >
-                  <div className="flex gap-3">
-                    <Input
-                      placeholder="Activity Name (e.g., Surfing)"
-                      className="flex-1"
-                      {...register(`activities.${index}.name`)}
-                    />
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-medium">Activity #{index + 1}</h3>
                     <Button
                       type="button"
                       variant="ghost"
-                      size="icon"
+                      size="sm"
                       onClick={() => removeActivity(index)}
                       className="text-red-600 hover:bg-red-50"
                     >
                       <Trash2 size={16} />
                     </Button>
                   </div>
-                  <div className="grid grid-cols-3 gap-3">
-                    <Input
-                      placeholder="Price Range"
-                      {...register(`activities.${index}.priceRange`)}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <Label>Activity Type *</Label>
+                      <Input
+                        placeholder="e.g., Surfing, Hiking, Snorkeling"
+                        {...register(`activities.${index}.activityRefName`, {
+                          required: true,
+                        })}
+                        className="mt-1.5"
+                      />
+                    </div>
+                    <div>
+                      <Label>Price Range</Label>
+                      <Input
+                        placeholder="e.g., 500 - 1,500 BDT"
+                        {...register(`activities.${index}.priceRange`)}
+                        className="mt-1.5"
+                      />
+                    </div>
+                    <div>
+                      <Label>Duration</Label>
+                      <Input
+                        placeholder="e.g., 2-3 hours"
+                        {...register(`activities.${index}.duration`)}
+                        className="mt-1.5"
+                      />
+                    </div>
+                    <div>
+                      <Label>Best Season</Label>
+                      <Input
+                        placeholder="e.g., November to March"
+                        {...register(`activities.${index}.bestSeason`)}
+                        className="mt-1.5"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>Description</Label>
+                    <Textarea
+                      placeholder="Destination-specific details about this activity..."
+                      {...register(`activities.${index}.description`)}
+                      className="min-h-[60px] mt-1.5"
                     />
-                    <Input
-                      placeholder="Duration"
-                      {...register(`activities.${index}.duration`)}
-                    />
-                    <Input
-                      placeholder="Difficulty"
-                      {...register(`activities.${index}.difficulty`)}
-                    />
+                  </div>
+
+                  <div className="flex gap-6">
+                    <div className="flex items-center space-x-2">
+                      <Controller
+                        control={control}
+                        name={`activities.${index}.bookingRequired`}
+                        render={({ field }) => (
+                          <Checkbox
+                            id={`booking_required_${index}`}
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        )}
+                      />
+                      <Label
+                        htmlFor={`booking_required_${index}`}
+                        className="cursor-pointer"
+                      >
+                        Booking Required
+                      </Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Controller
+                        control={control}
+                        name={`activities.${index}.isPopular`}
+                        render={({ field }) => (
+                          <Checkbox
+                            id={`is_popular_${index}`}
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        )}
+                      />
+                      <Label
+                        htmlFor={`is_popular_${index}`}
+                        className="cursor-pointer"
+                      >
+                        Popular Activity
+                      </Label>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -576,20 +1154,32 @@ const AddDestinationPage = () => {
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-2">
-                  <Utensils className="w-5 h-5 text-blue-600" />
+                  <div className="h-10 w-10 rounded-md flex items-center justify-center bg-primary/10">
+                    <Utensils className="w-5 h-5 text-primary" />
+                  </div>
                   <div>
                     <h2 className="text-lg font-semibold">Signature Dishes</h2>
-                    <p className="text-sm text-gray-500">Local specialties</p>
+                    <p className="text-sm text-gray-500">
+                      Local food specialties
+                    </p>
                   </div>
                 </div>
                 <Button
                   type="button"
                   size="sm"
                   onClick={() =>
-                    addDish({ name: "", priceRange: "", description: "" })
+                    addDish({
+                      name: "",
+                      tags: "",
+                      dietaryInfo: "",
+                      priceRange: "",
+                      isRecommended: false,
+                      localNotes: "",
+                    })
                   }
+                  variant="outline"
                 >
-                  <Plus size={16} className="mr-1" /> Add Dish
+                  <Plus size={14} /> Dish
                 </Button>
               </div>
             </CardHeader>
@@ -598,31 +1188,223 @@ const AddDestinationPage = () => {
               {dishFields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="flex gap-3 p-4 bg-gray-50 rounded-lg border"
+                  className="p-4 bg-gray-50 rounded-lg border space-y-3"
                 >
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Dish Name (e.g., Hilsa Curry)"
-                      {...register(`signatureDishes.${index}.name`)}
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <Label>Dish Name *</Label>
+                      <Input
+                        placeholder="e.g., Hilsa Curry"
+                        {...register(`signatureDishes.${index}.name`, {
+                          required: true,
+                        })}
+                        className="mt-1.5"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Label>Price Range</Label>
+                      <Input
+                        placeholder="e.g., 200-500 BDT"
+                        {...register(`signatureDishes.${index}.priceRange`)}
+                        className="mt-1.5"
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeDish(index)}
+                      className="text-red-600 hover:bg-red-50 mt-6"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label>Tags (comma-separated)</Label>
+                      <Input
+                        placeholder="e.g., spicy, traditional, seafood"
+                        {...register(`signatureDishes.${index}.tags`)}
+                        className="mt-1.5"
+                      />
+                    </div>
+                    <div>
+                      <Label>Dietary Information</Label>
+                      <Controller
+                        control={control}
+                        name={`signatureDishes.${index}.dietaryInfo`}
+                        render={({ field }) => (
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="w-full mt-1.5">
+                              <SelectValue placeholder="Select dietary info" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Halal">Halal</SelectItem>
+                              <SelectItem value="Vegetarian">
+                                Vegetarian
+                              </SelectItem>
+                              <SelectItem value="Vegan">Vegan</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>Local Notes</Label>
+                    <Textarea
+                      placeholder="Special preparation, serving style, or where to find it..."
+                      {...register(`signatureDishes.${index}.localNotes`)}
+                      className="min-h-[60px] mt-1.5"
                     />
                   </div>
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Price Range (e.g., 200-500 BDT)"
-                      {...register(`signatureDishes.${index}.priceRange`)}
+
+                  <div className="flex items-center space-x-2">
+                    <Controller
+                      control={control}
+                      name={`signatureDishes.${index}.isRecommended`}
+                      render={({ field }) => (
+                        <Checkbox
+                          id={`dish_recommended_${index}`}
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      )}
                     />
+                    <Label
+                      htmlFor={`dish_recommended_${index}`}
+                      className="cursor-pointer"
+                    >
+                      Recommended
+                    </Label>
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeDish(index)}
-                    className="text-red-600 hover:bg-red-50"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
                 </div>
               ))}
+            </div>
+          </Card>
+        </div>
+
+        {/* Right Sidebar */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Categorization */}
+          <Card>
+            <CardHeader>
+              <h2 className="text-lg font-semibold">Categorization</h2>
+            </CardHeader>
+
+            <div className="space-y-4">
+              <div>
+                <Label>Tags (comma-separated)</Label>
+                <Input
+                  placeholder="e.g., beach, nature, adventure"
+                  className="mt-1.5"
+                  {...register("tags")}
+                />
+              </div>
+
+              <div>
+                <Label>Suitable For (comma-separated)</Label>
+                <Input
+                  placeholder="e.g., families, couples, solo travelers"
+                  className="mt-1.5"
+                  {...register("suitableFor")}
+                />
+              </div>
+
+              <div>
+                <Label>Popular For (comma-separated)</Label>
+                <Input
+                  placeholder="e.g., beaches, seafood, sunsets"
+                  className="mt-1.5"
+                  {...register("popularFor")}
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Travel Planning */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-primary" />
+                <h2 className="text-lg font-semibold">Travel Planning</h2>
+              </div>
+            </CardHeader>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Best Time to Visit</Label>
+                  <Input
+                    placeholder="e.g., November to March"
+                    className="mt-1.5"
+                    {...register("bestTime")}
+                  />
+                </div>
+                <div>
+                  <Label>Peak Season</Label>
+                  <Input
+                    placeholder="e.g., December to February"
+                    className="mt-1.5"
+                    {...register("peakSeason")}
+                  />
+                </div>
+                <div>
+                  <Label>Average Duration</Label>
+                  <Input
+                    placeholder="e.g., 2-3 days"
+                    className="mt-1.5"
+                    {...register("avgDuration")}
+                  />
+                </div>
+                <Controller
+                  control={control}
+                  name="costLevel"
+                  render={({ field }) => (
+                    <div>
+                      <Label>Cost Level *</Label>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="mt-1.5 w-full">
+                          <SelectValue placeholder="Select cost level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Low">Low</SelectItem>
+                          <SelectItem value="Medium">Medium</SelectItem>
+                          <SelectItem value="High">High</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                />
+              </div>
+
+              <div>
+                <Label>Weather Information</Label>
+                <Textarea
+                  rows={3}
+                  placeholder="Describe typical weather conditions..."
+                  className="mt-1.5"
+                  {...register("weather")}
+                />
+              </div>
+
+              <div>
+                <Label>Festivals & Events</Label>
+                <Textarea
+                  rows={3}
+                  placeholder="List major festivals and events..."
+                  className="mt-1.5"
+                  {...register("festivals")}
+                />
+              </div>
             </div>
           </Card>
 
@@ -630,7 +1412,7 @@ const AddDestinationPage = () => {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Info className="w-5 h-5 text-blue-600" />
+                <Info className="w-5 h-5 text-primary" />
                 <h2 className="text-lg font-semibold">Practical Information</h2>
               </div>
             </CardHeader>
@@ -685,55 +1467,16 @@ const AddDestinationPage = () => {
               </div>
             </div>
           </Card>
-        </div>
-
-        {/* Right Sidebar */}
-        <div className="space-y-6">
-          {/* Categorization */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-lg font-semibold">Categorization</h2>
-            </CardHeader>
-
-            <div className="space-y-4">
-              <div>
-                <Label>Tags (comma-separated)</Label>
-                <Input
-                  placeholder="e.g., beach, nature, adventure"
-                  className="mt-1.5"
-                  {...register("tags")}
-                />
-              </div>
-
-              <div>
-                <Label>Suitable For (comma-separated)</Label>
-                <Input
-                  placeholder="e.g., families, couples, solo travelers"
-                  className="mt-1.5"
-                  {...register("suitableFor")}
-                />
-              </div>
-
-              <div>
-                <Label>Popular For (comma-separated)</Label>
-                <Input
-                  placeholder="e.g., beaches, seafood, sunsets"
-                  className="mt-1.5"
-                  {...register("popularFor")}
-                />
-              </div>
-            </div>
-          </Card>
 
           {/* Status */}
-          <Card className="bg-blue-50 border-blue-200">
+          <Card className="!bg-primary/5 border-primary/10">
             <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <Info className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
               <div className="text-sm">
-                <p className="font-medium text-blue-900 mb-1">
+                <p className="font-medium text-primary mb-1">
                   Publishing Status
                 </p>
-                <p className="text-blue-700">
+                <p className="text-primary/75">
                   Destination will be saved as draft. You can activate it later
                   from the destinations list.
                 </p>
@@ -749,9 +1492,19 @@ const AddDestinationPage = () => {
 
             <div className="space-y-3 text-sm">
               <div className="flex justify-between py-2 border-b">
+                <span className="text-gray-600">Attractions</span>
+                <span className="font-semibold">{attractionFields.length}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b">
                 <span className="text-gray-600">Accommodation Types</span>
                 <span className="font-semibold">
                   {accommodationTypeFields.length}
+                </span>
+              </div>
+              <div className="flex justify-between py-2 border-b">
+                <span className="text-gray-600">Specific Accommodations</span>
+                <span className="font-semibold">
+                  {accommodationFields.length}
                 </span>
               </div>
               <div className="flex justify-between py-2 border-b">
@@ -767,7 +1520,7 @@ const AddDestinationPage = () => {
                 <span className="font-semibold">{dishFields.length}</span>
               </div>
               <div className="flex justify-between py-2">
-                <span className="text-gray-600">Images</span>
+                <span className="text-gray-600">Destination Images</span>
                 <span className="font-semibold">
                   {destinationImages.length}
                 </span>
@@ -778,7 +1531,7 @@ const AddDestinationPage = () => {
       </div>
 
       {/* Submit Footer */}
-      <div className="sticky bottom-0 bg-white border-t translate-y-8 py-5 -mx-8">
+      <div className="sticky bottom-0 bg-white border-t translate-y-8 -mx-8 px-8 py-5 shadow-lg">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
           <Button variant="outline">Cancel</Button>
           <div className="flex gap-3">

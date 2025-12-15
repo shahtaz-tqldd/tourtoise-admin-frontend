@@ -1,11 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import {
-  LayoutDashboard,
-  Users,
-  PlaneTakeoff,
-  Settings,
-} from "lucide-react";
+import { LayoutDashboard, Users, PlaneTakeoff, Settings } from "lucide-react";
 // import logo from "@/assets/images/logo.svg";
 
 const SideMenu = () => {
@@ -41,8 +36,8 @@ const SideMenu = () => {
   return (
     <div className="max-w-[240px] w-full h-screen bg-primary/15 p-6 pr-2 flex flex-col justify-between">
       <div className="space-y-6">
-        <Link to="/" className="flex items-center">
-          {/* <img src={logo} className="h-11 w-11" /> */}
+        <Link to="/" className="flex items-center gap-2">
+          <img src="/logo.png" className="h-10 w-10 object-contain" />
           <h2 className="text-primary font-medium">tourtoise admin</h2>
         </Link>
         <ul className="space-y-1 w-full">

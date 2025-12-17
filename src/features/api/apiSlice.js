@@ -41,9 +41,6 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
         );
 
         if (refreshResult.data?.success) {
-          // Clear existing cache before logging in new user
-          api.dispatch(apiSlice.util.resetApiState());
-
           api.dispatch(
             userLoggedIn({
               accessToken: refreshResult?.data?.data?.accessToken,
@@ -57,18 +54,18 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
           break;
         } else {
           api.dispatch(userLoggedOut());
-          api.dispatch(apiSlice.util.resetApiState());
+          // api.dispatch(apiSlice.util.resetApiState());
           break;
         }
       } else {
         api.dispatch(userLoggedOut());
-        api.dispatch(apiSlice.util.resetApiState());
+        // api.dispatch(apiSlice.util.resetApiState());
         break;
       }
     } catch (error) {
       console.error("Refresh token failed:", error);
       api.dispatch(userLoggedOut());
-      api.dispatch(apiSlice.util.resetApiState());
+      // api.dispatch(apiSlice.util.resetApiState());
       break;
     }
   }
@@ -76,38 +73,17 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
   return result;
 };
 
-// Middleware to clear cache when user changes
-const customMiddleware = (api) => (next) => (action) => {
-  if (action.type === "auth/userLoggedIn") {
-    // Clear all cache when a new user logs in
-    api.dispatch(apiSlice.util.resetApiState());
-  }
-  return next(action);
-};
-
 export const apiSlice = createApi({
   reducerPath: "apiSlice",
   baseQuery: baseQueryWithReauth,
   tagTypes: ["auth", "destination-list"],
-  keepUnusedDataFor: 0, // Don't keep any unused data
-  refetchOnMountOrArgChange: true, // Always refetch when component mounts
+  keepUnusedDataFor: 300, // Don't keep any unused data
+  refetchOnMountOrArgChange: false, // Always refetch when component mounts
   refetchOnReconnect: true, // Refetch on reconnection
   endpoints: () => ({}),
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(customMiddleware),
 });
 
 // Export utility functions for cache management
 export const {
   util: { resetApiState },
 } = apiSlice;
-
-export const setupApiSlice = (store) => {
-  // Subscribe to store changes to handle user logout
-  store.subscribe(() => {
-    const state = store.getState();
-    if (!state.auth.isAuthenticated) {
-      store.dispatch(resetApiState());
-    }
-  });
-};

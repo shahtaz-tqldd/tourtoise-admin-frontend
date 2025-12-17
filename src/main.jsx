@@ -5,8 +5,6 @@ import { store } from "./store.js";
 
 import App from "./App.jsx";
 
-import "@/assets/styles/index.css";
-
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>

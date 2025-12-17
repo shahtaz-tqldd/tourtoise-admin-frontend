@@ -26,8 +26,40 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
         };
       },
     }),
+
+    accomodationTypeList: builder.query({
+      query: () => {
+        return {
+          url: "/destinations/accommodation-type/list",
+          method: "GET",
+        };
+      },
+    }),
+
+    transportTypeList: builder.query({
+      query: () => {
+        return {
+          url: "/destinations/transport-type/list",
+          method: "GET",
+        };
+      },
+    }),
+
+    activityTypeList: builder.query({
+      query: () => {
+        return {
+          url: "/destinations/activity-type/list",
+          method: "GET",
+        };
+      },
+    }),
   }),
 });
 
-export const { useCreateNewDestinationMutation, useDestinationListQuery } =
-  destinationApiSlice;
+export const {
+  useCreateNewDestinationMutation,
+  useDestinationListQuery,
+  useAccomodationTypeListQuery,
+  useTransportTypeListQuery,
+  useActivityTypeListQuery,
+} = destinationApiSlice;

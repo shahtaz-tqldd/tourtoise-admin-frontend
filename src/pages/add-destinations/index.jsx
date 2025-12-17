@@ -28,7 +28,12 @@ import {
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Text, Title } from "@/components/ui/typography";
-import { useCreateNewDestinationMutation } from "@/features/destination/destinationApiSlice";
+import {
+  useAccomodationTypeListQuery,
+  useActivityTypeListQuery,
+  useCreateNewDestinationMutation,
+  useTransportTypeListQuery,
+} from "@/features/destination/destinationApiSlice";
 
 const AddDestinationPage = () => {
   const [destinationImages, setDestinationImages] = useState([]);
@@ -38,28 +43,28 @@ const AddDestinationPage = () => {
       name: "",
       description: "",
       tags: "",
-      bestTime: "",
-      costLevel: "",
-      avgDuration: "",
-      suitableFor: "",
-      popularFor: "",
+      best_time: "",
+      cost_level: "",
+      avg_duration: "",
+      suitable_for: "",
+      popular_for: "",
       country: "",
       region: "",
       longitude: "",
       latitude: "",
       timezone: "UTC",
       weather: "",
-      peakSeason: "",
+      peak_season: "",
       festivals: "",
       languages: "",
-      paymentMethods: "",
-      safetyTips: "",
+      payment_methods: "",
+      safety_tips: "",
       customs: "",
-      howToReach: "",
-      accommodationTypes: [],
-      transportOptions: [],
+      how_to_reach: "",
+      accommodation_types: [],
+      transport_options: [],
       activities: [],
-      signatureDishes: [],
+      signature_dishes: [],
       accommodations: [],
       attractions: [],
     },
@@ -69,7 +74,7 @@ const AddDestinationPage = () => {
     fields: transportFields,
     append: addTransport,
     remove: removeTransport,
-  } = useFieldArray({ control, name: "transportOptions" });
+  } = useFieldArray({ control, name: "transport_options" });
 
   const {
     fields: activityFields,
@@ -81,13 +86,13 @@ const AddDestinationPage = () => {
     fields: dishFields,
     append: addDish,
     remove: removeDish,
-  } = useFieldArray({ control, name: "signatureDishes" });
+  } = useFieldArray({ control, name: "signature_dishes" });
 
   const {
     fields: accommodationTypeFields,
     append: addAccommodationType,
     remove: removeAccommodationType,
-  } = useFieldArray({ control, name: "accommodationTypes" });
+  } = useFieldArray({ control, name: "accommodation_types" });
 
   const {
     fields: accommodationFields,
@@ -101,7 +106,30 @@ const AddDestinationPage = () => {
     remove: removeAttraction,
   } = useFieldArray({ control, name: "attractions" });
 
-  const [createNewDestination, { isLoading, isSuccess, isError }] =
+  const {
+    data: accommodationTypesData,
+    isLoading: accommodationTypeListLoading,
+  } = useAccomodationTypeListQuery(undefined, {
+    refetchOnMountOrArgChange: false,
+  });
+
+  const accommodationTypeOptions = accommodationTypesData?.data || [];
+
+  const { data: transportTypesData, isLoading: transportTypeListLoading } =
+    useTransportTypeListQuery(undefined, {
+      refetchOnMountOrArgChange: false,
+    });
+
+  const transportTypeOptions = transportTypesData?.data || [];
+
+  const { data: activityTypesData, isLoading: activityTypeListLoading } =
+    useActivityTypeListQuery(undefined, {
+      refetchOnMountOrArgChange: false,
+    });
+
+  const activityTypeOptions = activityTypesData?.data || [];
+
+  const [createNewDestination, { isLoading: destinationCreateLoading }] =
     useCreateNewDestinationMutation();
 
   const onSubmit = async (data) => {
@@ -112,11 +140,11 @@ const AddDestinationPage = () => {
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean),
-      suitableFor: data.suitableFor
+      suitable_for: data.suitable_for
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean),
-      popularFor: data.popularFor
+      popular_for: data.popular_for
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean),
@@ -124,7 +152,7 @@ const AddDestinationPage = () => {
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean),
-      paymentMethods: data.paymentMethods
+      payment_methods: data.payment_methods
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean),
@@ -161,8 +189,8 @@ const AddDestinationPage = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setValue(`attractions.${index}.imageUrl`, reader.result);
-        setValue(`attractions.${index}.imageFile`, file);
+        setValue(`attractions.${index}.image_url`, reader.result);
+        setValue(`attractions.${index}.image_file`, file);
       };
       reader.readAsDataURL(file);
     }
@@ -173,8 +201,8 @@ const AddDestinationPage = () => {
   };
 
   const removeAttractionImage = (index) => {
-    setValue(`attractions.${index}.imageUrl`, "");
-    setValue(`attractions.${index}.imageFile`, null);
+    setValue(`attractions.${index}.image_url`, "");
+    setValue(`attractions.${index}.image_file`, null);
   };
 
   return (
@@ -356,14 +384,14 @@ const AddDestinationPage = () => {
                     addAttraction({
                       name: "",
                       description: "",
-                      imageUrl: "",
-                      imageFile: null,
+                      image_url: "",
+                      image_file: null,
                       tag: "",
-                      entryFee: "",
-                      openingHours: "",
-                      bestTimeToVisit: "",
-                      availableTransports: "",
-                      isRecommended: false,
+                      entry_fee: "",
+                      opening_hours: "",
+                      best_time_to_visit: "",
+                      available_transports: "",
+                      is_recommended: false,
                       region: "",
                       longitude: "",
                       latitude: "",
@@ -377,7 +405,7 @@ const AddDestinationPage = () => {
 
             <div className="space-y-4">
               {attractionFields.map((field, index) => {
-                const imageUrl = watch(`attractions.${index}.imageUrl`);
+                const image_url = watch(`attractions.${index}.image_url`);
 
                 return (
                   <div
@@ -465,37 +493,41 @@ const AddDestinationPage = () => {
                       </div>
 
                       <div>
-                        <Label htmlFor={`attractions.${index}.entryFee`}>
+                        <Label htmlFor={`attractions.${index}.entry_fee`}>
                           Entry Fee
                         </Label>
                         <Input
-                          id={`attractions.${index}.entryFee`}
+                          id={`attractions.${index}.entry_fee`}
                           placeholder="e.g., 100 BDT or Free"
-                          {...register(`attractions.${index}.entryFee`)}
+                          {...register(`attractions.${index}.entry_fee`)}
                           className="mt-1.5"
                         />
                       </div>
 
                       <div>
-                        <Label htmlFor={`attractions.${index}.openingHours`}>
+                        <Label htmlFor={`attractions.${index}.opening_hours`}>
                           Opening Hours
                         </Label>
                         <Input
-                          id={`attractions.${index}.openingHours`}
+                          id={`attractions.${index}.opening_hours`}
                           placeholder="e.g., 9:00 AM - 5:00 PM"
-                          {...register(`attractions.${index}.openingHours`)}
+                          {...register(`attractions.${index}.opening_hours`)}
                           className="mt-1.5"
                         />
                       </div>
 
                       <div>
-                        <Label htmlFor={`attractions.${index}.bestTimeToVisit`}>
+                        <Label
+                          htmlFor={`attractions.${index}.best_time_to_visit`}
+                        >
                           Best Time to Visit
                         </Label>
                         <Input
-                          id={`attractions.${index}.bestTimeToVisit`}
+                          id={`attractions.${index}.best_time_to_visit`}
                           placeholder="e.g., Winter (Nov-Feb)"
-                          {...register(`attractions.${index}.bestTimeToVisit`)}
+                          {...register(
+                            `attractions.${index}.best_time_to_visit`
+                          )}
                           className="mt-1.5"
                         />
                       </div>
@@ -542,15 +574,15 @@ const AddDestinationPage = () => {
 
                       <div className="md:col-span-2">
                         <Label
-                          htmlFor={`attractions.${index}.availableTransports`}
+                          htmlFor={`attractions.${index}.available_transports`}
                         >
                           Available Transports (comma-separated)
                         </Label>
                         <Input
-                          id={`attractions.${index}.availableTransports`}
+                          id={`attractions.${index}.available_transports`}
                           placeholder="e.g., Bus, Car, Boat"
                           {...register(
-                            `attractions.${index}.availableTransports`
+                            `attractions.${index}.available_transports`
                           )}
                           className="mt-1.5"
                         />
@@ -559,10 +591,10 @@ const AddDestinationPage = () => {
                       <div className="md:col-span-2 max-w-xs">
                         <Label>Attraction Image</Label>
                         <div className="mt-1.5">
-                          {imageUrl ? (
+                          {image_url ? (
                             <div className="relative group">
                               <img
-                                src={imageUrl}
+                                src={image_url}
                                 alt="Attraction preview"
                                 className="w-full h-48 object-cover rounded-lg border-2 border-gray-200"
                               />
@@ -605,7 +637,7 @@ const AddDestinationPage = () => {
                       <div className="flex items-center space-x-2">
                         <Controller
                           control={control}
-                          name={`attractions.${index}.isRecommended`}
+                          name={`attractions.${index}.is_recommended`}
                           render={({ field }) => (
                             <Checkbox
                               id={`is_recommended_${index}`}
@@ -651,8 +683,8 @@ const AddDestinationPage = () => {
                   variant="outline"
                   onClick={() =>
                     addAccommodationType({
-                      typeRefName: "",
-                      priceRange: "",
+                      accommodation_type_id: "",
+                      price_range: "",
                       availability: "",
                       description: "",
                     })
@@ -672,10 +704,41 @@ const AddDestinationPage = () => {
                   <div className="flex items-end gap-3">
                     <div className="flex-1">
                       <Label>Accommodation Type *</Label>
+                      <Controller
+                        control={control}
+                        name={`accommodation_types.${index}.accommodation_type_id`}
+                        render={({ field }) => (
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="mt-1.5 w-full">
+                              <SelectValue placeholder="Select Accommodation Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {accommodationTypeListLoading ? (
+                                <div className="h-16 w-full center">
+                                  <span className="spinner"></span>
+                                </div>
+                              ) : (
+                                accommodationTypeOptions?.map((type) => (
+                                  <SelectItem key={type.id} value={type.id}>
+                                    {type.name}
+                                  </SelectItem>
+                                ))
+                              )}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
+
+                    <div className="flex-1">
+                      <Label>Price Range *</Label>
                       <Input
-                        placeholder="e.g., Hotels, Resorts, Hostels"
+                        placeholder="e.g., 1,500 - 8,000 BDT"
                         {...register(
-                          `accommodationTypes.${index}.typeRefName`,
+                          `accommodation_types.${index}.price_range`,
                           {
                             required: true,
                           }
@@ -685,22 +748,11 @@ const AddDestinationPage = () => {
                     </div>
 
                     <div className="flex-1">
-                      <Label>Price Range *</Label>
-                      <Input
-                        placeholder="e.g., 1,500 - 8,000 BDT"
-                        {...register(`accommodationTypes.${index}.priceRange`, {
-                          required: true,
-                        })}
-                        className="mt-1.5"
-                      />
-                    </div>
-
-                    <div className="flex-1">
                       <Label>Availability</Label>
                       <Input
                         placeholder="e.g., Year-round, Seasonal"
                         {...register(
-                          `accommodationTypes.${index}.availability`
+                          `accommodation_types.${index}.availability`
                         )}
                         className="mt-1.5"
                       />
@@ -720,7 +772,7 @@ const AddDestinationPage = () => {
                   <div>
                     <Textarea
                       placeholder="Additional notes about this accommodation type..."
-                      {...register(`accommodationTypes.${index}.description`)}
+                      {...register(`accommodation_types.${index}.description`)}
                       className="min-h-[60px]"
                     />
                   </div>
@@ -729,7 +781,7 @@ const AddDestinationPage = () => {
             </div>
           </Card>
 
-          {/* Specific Accommodations */}
+          {/* Accommodations */}
           <Card>
             <CardHeader>
               <div className="flex justify-between items-start">
@@ -738,9 +790,7 @@ const AddDestinationPage = () => {
                     <Hotel className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold">
-                      Specific Accommodations
-                    </h2>
+                    <h2 className="text-lg font-semibold">Accommodations</h2>
                     <p className="text-sm text-gray-500">
                       Individual properties with contact details
                     </p>
@@ -753,8 +803,8 @@ const AddDestinationPage = () => {
                   onClick={() =>
                     addAccommodation({
                       name: "",
-                      accommodationTypeRef: "",
-                      priceRange: "",
+                      accommodation_type_id: "",
+                      price_range: "",
                       rating: "",
                       distance: "",
                       region: "",
@@ -803,13 +853,33 @@ const AddDestinationPage = () => {
                     </div>
 
                     <div>
-                      <Label>Type Reference</Label>
-                      <Input
-                        placeholder="e.g., Hotels, Resorts"
-                        {...register(
-                          `accommodations.${index}.accommodationTypeRef`
+                      <Label>Accommodation Type *</Label>
+                      <Controller
+                        control={control}
+                        name={`accommodations.${index}.accommodation_type_id`}
+                        render={({ field }) => (
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="mt-1.5 w-full">
+                              <SelectValue placeholder="Select Accommodation Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {accommodationTypeListLoading ? (
+                                <div className="h-16 w-full center">
+                                  <span className="spinner"></span>
+                                </div>
+                              ) : (
+                                accommodationTypeOptions?.map((type) => (
+                                  <SelectItem key={type.id} value={type.id}>
+                                    {type.name}
+                                  </SelectItem>
+                                ))
+                              )}
+                            </SelectContent>
+                          </Select>
                         )}
-                        className="mt-1.5"
                       />
                     </div>
 
@@ -817,7 +887,7 @@ const AddDestinationPage = () => {
                       <Label>Price Range *</Label>
                       <Input
                         placeholder="e.g., 2,000 - 5,000 BDT/night"
-                        {...register(`accommodations.${index}.priceRange`, {
+                        {...register(`accommodations.${index}.price_range`, {
                           required: true,
                         })}
                         className="mt-1.5"
@@ -935,8 +1005,8 @@ const AddDestinationPage = () => {
                   variant="outline"
                   onClick={() =>
                     addTransport({
-                      transportRefName: "",
-                      priceRange: "",
+                      transport_type_id: "",
+                      price_range: "",
                       availability: "",
                       description: "",
                     })
@@ -956,22 +1026,39 @@ const AddDestinationPage = () => {
                   <div className="flex gap-3">
                     <div className="flex-1">
                       <Label>Transport Type *</Label>
-                      <Input
-                        placeholder="e.g., CNG, Taxi, Bus"
-                        {...register(
-                          `transportOptions.${index}.transportRefName`,
-                          {
-                            required: true,
-                          }
+                      <Controller
+                        control={control}
+                        name={`transport_options.${index}.transport_type_id`}
+                        render={({ field }) => (
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="mt-1.5 w-full">
+                              <SelectValue placeholder="Select Transport Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {transportTypeListLoading ? (
+                                <div className="h-16 w-full center">
+                                  <span className="spinner"></span>
+                                </div>
+                              ) : (
+                                transportTypeOptions?.map((type) => (
+                                  <SelectItem key={type.id} value={type.id}>
+                                    {type.name}
+                                  </SelectItem>
+                                ))
+                              )}
+                            </SelectContent>
+                          </Select>
                         )}
-                        className="mt-1.5"
                       />
                     </div>
                     <div className="flex-1">
                       <Label>Price Range *</Label>
                       <Input
                         placeholder="e.g., 100 - 300 BDT"
-                        {...register(`transportOptions.${index}.priceRange`, {
+                        {...register(`transport_options.${index}.price_range`, {
                           required: true,
                         })}
                         className="mt-1.5"
@@ -981,7 +1068,7 @@ const AddDestinationPage = () => {
                       <Label>Availability</Label>
                       <Input
                         placeholder="e.g., 24/7, 6 AM - 10 PM"
-                        {...register(`transportOptions.${index}.availability`)}
+                        {...register(`transport_options.${index}.availability`)}
                         className="mt-1.5"
                       />
                     </div>
@@ -998,7 +1085,7 @@ const AddDestinationPage = () => {
                   <div>
                     <Textarea
                       placeholder="Additional notes (local tips, booking info, etc.)"
-                      {...register(`transportOptions.${index}.description`)}
+                      {...register(`transport_options.${index}.description`)}
                       className="min-h-[60px]"
                     />
                   </div>
@@ -1023,12 +1110,12 @@ const AddDestinationPage = () => {
                   variant="outline"
                   onClick={() =>
                     addActivity({
-                      activityRefName: "",
-                      priceRange: "",
+                      activity_type_id: "",
+                      price_range: "",
                       duration: "",
-                      bestSeason: "",
-                      bookingRequired: false,
-                      isPopular: false,
+                      best_season: "",
+                      booking_required: false,
+                      is_popular: false,
                       description: "",
                     })
                   }
@@ -1058,21 +1145,41 @@ const AddDestinationPage = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
+                    <div className="flex-1">
                       <Label>Activity Type *</Label>
-                      <Input
-                        placeholder="e.g., Surfing, Hiking, Snorkeling"
-                        {...register(`activities.${index}.activityRefName`, {
-                          required: true,
-                        })}
-                        className="mt-1.5"
+                      <Controller
+                        control={control}
+                        name={`activities.${index}.activity_type_id`}
+                        render={({ field }) => (
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="mt-1.5 w-full">
+                              <SelectValue placeholder="Select Activity Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {activityTypeListLoading ? (
+                                <div className="h-16 w-full center">
+                                  <span className="spinner"></span>
+                                </div>
+                              ) : (
+                                activityTypeOptions?.map((type) => (
+                                  <SelectItem key={type.id} value={type.id}>
+                                    {type.name}
+                                  </SelectItem>
+                                ))
+                              )}
+                            </SelectContent>
+                          </Select>
+                        )}
                       />
                     </div>
                     <div>
                       <Label>Price Range</Label>
                       <Input
                         placeholder="e.g., 500 - 1,500 BDT"
-                        {...register(`activities.${index}.priceRange`)}
+                        {...register(`activities.${index}.price_range`)}
                         className="mt-1.5"
                       />
                     </div>
@@ -1088,7 +1195,7 @@ const AddDestinationPage = () => {
                       <Label>Best Season</Label>
                       <Input
                         placeholder="e.g., November to March"
-                        {...register(`activities.${index}.bestSeason`)}
+                        {...register(`activities.${index}.best_season`)}
                         className="mt-1.5"
                       />
                     </div>
@@ -1107,7 +1214,7 @@ const AddDestinationPage = () => {
                     <div className="flex items-center space-x-2">
                       <Controller
                         control={control}
-                        name={`activities.${index}.bookingRequired`}
+                        name={`activities.${index}.booking_required`}
                         render={({ field }) => (
                           <Checkbox
                             id={`booking_required_${index}`}
@@ -1127,7 +1234,7 @@ const AddDestinationPage = () => {
                     <div className="flex items-center space-x-2">
                       <Controller
                         control={control}
-                        name={`activities.${index}.isPopular`}
+                        name={`activities.${index}.is_popular`}
                         render={({ field }) => (
                           <Checkbox
                             id={`is_popular_${index}`}
@@ -1171,10 +1278,10 @@ const AddDestinationPage = () => {
                     addDish({
                       name: "",
                       tags: "",
-                      dietaryInfo: "",
-                      priceRange: "",
-                      isRecommended: false,
-                      localNotes: "",
+                      dietary_info: "",
+                      price_range: "",
+                      is_recommended: false,
+                      local_notes: "",
                     })
                   }
                   variant="outline"
@@ -1195,7 +1302,7 @@ const AddDestinationPage = () => {
                       <Label>Dish Name *</Label>
                       <Input
                         placeholder="e.g., Hilsa Curry"
-                        {...register(`signatureDishes.${index}.name`, {
+                        {...register(`signature_dishes.${index}.name`, {
                           required: true,
                         })}
                         className="mt-1.5"
@@ -1205,7 +1312,7 @@ const AddDestinationPage = () => {
                       <Label>Price Range</Label>
                       <Input
                         placeholder="e.g., 200-500 BDT"
-                        {...register(`signatureDishes.${index}.priceRange`)}
+                        {...register(`signature_dishes.${index}.price_range`)}
                         className="mt-1.5"
                       />
                     </div>
@@ -1225,7 +1332,7 @@ const AddDestinationPage = () => {
                       <Label>Tags (comma-separated)</Label>
                       <Input
                         placeholder="e.g., spicy, traditional, seafood"
-                        {...register(`signatureDishes.${index}.tags`)}
+                        {...register(`signature_dishes.${index}.tags`)}
                         className="mt-1.5"
                       />
                     </div>
@@ -1233,7 +1340,7 @@ const AddDestinationPage = () => {
                       <Label>Dietary Information</Label>
                       <Controller
                         control={control}
-                        name={`signatureDishes.${index}.dietaryInfo`}
+                        name={`signature_dishes.${index}.dietary_info`}
                         render={({ field }) => (
                           <Select
                             onValueChange={field.onChange}
@@ -1259,7 +1366,7 @@ const AddDestinationPage = () => {
                     <Label>Local Notes</Label>
                     <Textarea
                       placeholder="Special preparation, serving style, or where to find it..."
-                      {...register(`signatureDishes.${index}.localNotes`)}
+                      {...register(`signature_dishes.${index}.local_notes`)}
                       className="min-h-[60px] mt-1.5"
                     />
                   </div>
@@ -1267,7 +1374,7 @@ const AddDestinationPage = () => {
                   <div className="flex items-center space-x-2">
                     <Controller
                       control={control}
-                      name={`signatureDishes.${index}.isRecommended`}
+                      name={`signature_dishes.${index}.is_recommended`}
                       render={({ field }) => (
                         <Checkbox
                           id={`dish_recommended_${index}`}
@@ -1312,7 +1419,7 @@ const AddDestinationPage = () => {
                 <Input
                   placeholder="e.g., families, couples, solo travelers"
                   className="mt-1.5"
-                  {...register("suitableFor")}
+                  {...register("suitable_for")}
                 />
               </div>
 
@@ -1321,7 +1428,7 @@ const AddDestinationPage = () => {
                 <Input
                   placeholder="e.g., beaches, seafood, sunsets"
                   className="mt-1.5"
-                  {...register("popularFor")}
+                  {...register("popular_for")}
                 />
               </div>
             </div>
@@ -1343,7 +1450,7 @@ const AddDestinationPage = () => {
                   <Input
                     placeholder="e.g., November to March"
                     className="mt-1.5"
-                    {...register("bestTime")}
+                    {...register("best_time")}
                   />
                 </div>
                 <div>
@@ -1351,7 +1458,7 @@ const AddDestinationPage = () => {
                   <Input
                     placeholder="e.g., December to February"
                     className="mt-1.5"
-                    {...register("peakSeason")}
+                    {...register("peak_season")}
                   />
                 </div>
                 <div>
@@ -1359,12 +1466,12 @@ const AddDestinationPage = () => {
                   <Input
                     placeholder="e.g., 2-3 days"
                     className="mt-1.5"
-                    {...register("avgDuration")}
+                    {...register("avg_duration")}
                   />
                 </div>
                 <Controller
                   control={control}
-                  name="costLevel"
+                  name="cost_level"
                   render={({ field }) => (
                     <div>
                       <Label>Cost Level *</Label>
@@ -1424,7 +1531,7 @@ const AddDestinationPage = () => {
                   rows={3}
                   placeholder="Describe transportation options to reach the destination..."
                   className="mt-1.5"
-                  {...register("howToReach")}
+                  {...register("how_to_reach")}
                 />
               </div>
 
@@ -1442,7 +1549,7 @@ const AddDestinationPage = () => {
                 <Input
                   placeholder="e.g., Cash, Credit Card, Mobile Banking"
                   className="mt-1.5"
-                  {...register("paymentMethods")}
+                  {...register("payment_methods")}
                 />
               </div>
 
@@ -1452,7 +1559,7 @@ const AddDestinationPage = () => {
                   rows={3}
                   placeholder="Provide safety recommendations for travelers..."
                   className="mt-1.5"
-                  {...register("safetyTips")}
+                  {...register("safety_tips")}
                 />
               </div>
 
@@ -1538,8 +1645,12 @@ const AddDestinationPage = () => {
             <Button type="button" variant="outline" size="lg">
               Save as Draft
             </Button>
-            <Button onClick={handleSubmit(onSubmit)} size="lg" className="px-8">
-              Publish Destination
+            <Button onClick={handleSubmit(onSubmit)} size="lg" className="w-44">
+              {destinationCreateLoading ? (
+                <span className="spinner spinner-white"></span>
+              ) : (
+                "Publish Destination"
+              )}
             </Button>
           </div>
         </div>

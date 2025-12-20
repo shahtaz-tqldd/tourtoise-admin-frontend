@@ -15,8 +15,8 @@ const SideMenu = () => {
     },
     {
       id: 2,
-      label: "Tourists",
-      link: "/tourists",
+      label: "Users",
+      link: "/users",
       icon: <Users size={18} />,
     },
     {

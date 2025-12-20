@@ -3,23 +3,32 @@ import { apiSlice } from "../api/apiSlice";
 export const destinationApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     createNewDestination: builder.mutation({
-      query: (data) => {
+      query: (formData) => {
         return {
           url: `/destinations/create`,
           method: "POST",
-          body: data,
+          body: formData,
+        };
+      },
+    }),
+
+    uploadDestinationImages: builder.mutation({
+      query: (formData) => {
+        return {
+          url: `/destinations/upload-images`,
+          method: "POST",
+          body: formData,
         };
       },
       invalidatesTags: ["destination-list"],
     }),
 
     destinationList: builder.query({
-      query: ({ page = 1, page_size = 10, search_query }) => {
-        let url = `/destinations?page=${page}&page_size=${page_size}`;
+      query: ({ page = 1, page_size = 10, search_query = "" }) => {
+        let url = `/destinations/list?page=${page}&page_size=${page_size}`;
         if (search_query) {
           url += `&search=${search_query}`;
         }
-
         return {
           url,
           method: "GET",
@@ -58,6 +67,7 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useCreateNewDestinationMutation,
+  useUploadDestinationImagesMutation,
   useDestinationListQuery,
   useAccomodationTypeListQuery,
   useTransportTypeListQuery,

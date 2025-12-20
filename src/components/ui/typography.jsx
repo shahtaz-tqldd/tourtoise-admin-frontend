@@ -7,6 +7,7 @@ export function Title({ children, variant = "md", className }) {
     lg: "text-xl md:text-2xl font-semibold",
     md: "text-lg md:text-xl font-bold",
     sm: "text-base md:text-lg font-extrabold",
+    xs: "text-sm md:text-base font-semibold",
   };
 
   return (

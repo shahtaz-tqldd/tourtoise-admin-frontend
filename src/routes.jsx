@@ -7,6 +7,7 @@ import ForgotPasswordPage from "./pages/auth/forgot-password";
 import ResetPasswordPage from "./pages/auth/reset-password";
 import DestinationsPage from "./pages/destinations";
 import AddDestinationPage from "./pages/add-destinations";
+import UserPage from "./pages/users";
 
 export const routes = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ export const routes = createBrowserRouter([
       {
         path: "/destinations/new-destination",
         element: <AddDestinationPage />,
+      },
+      {
+        path: "/users",
+        element: <UserPage />,
       },
     ],
   },

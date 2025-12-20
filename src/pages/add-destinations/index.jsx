@@ -33,11 +33,14 @@ import {
   useActivityTypeListQuery,
   useCreateNewDestinationMutation,
   useTransportTypeListQuery,
+  useUploadDestinationImagesMutation,
 } from "@/features/destination/destinationApiSlice";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const AddDestinationPage = () => {
+  const navigate = useNavigate();
   const [destinationImages, setDestinationImages] = useState([]);
-
   const { register, control, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
       name: "",
@@ -132,52 +135,76 @@ const AddDestinationPage = () => {
   const [createNewDestination, { isLoading: destinationCreateLoading }] =
     useCreateNewDestinationMutation();
 
+  const [
+    uploadDestinationImages,
+    { isLoading: destinationImageUploadLoading },
+  ] = useUploadDestinationImagesMutation();
+
   const onSubmit = async (data) => {
-    const finalData = {
+    const destinationData = {
       ...data,
-      images: destinationImages,
-      tags: data.tags
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
-      suitable_for: data.suitable_for
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
-      popular_for: data.popular_for
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
-      languages: data.languages
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
-      payment_methods: data.payment_methods
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
+      tags: data.tags.split(",").map((tag) => tag.trim()),
+      suitable_for: data.suitable_for.split(",").map((tag) => tag.trim()),
+      popular_for: data.popular_for.split(",").map((tag) => tag.trim()),
+      languages: data.languages.split(",").map((tag) => tag.trim()),
+      payment_methods: data.payment_methods.split(",").map((tag) => tag.trim()),
+      images: undefined,
       attractions: data.attractions.map((attr) => ({
         ...attr,
         available_transports: attr.available_transports
-          ? attr.available_transports
-              .split(",")
-              .map((t) => t.trim())
-              .filter(Boolean)
-          : [],
+          .split(",")
+          .map((t) => t.trim()),
+        image_file: undefined,
+        image_url: undefined,
       })),
     };
-    console.log("Destination Data:", finalData);
-    const res = await createNewDestination(finalData);
-    console.log(res);
-    if (res & res?.success) {
-      console.log("success");
+
+    const createResponse = await createNewDestination(destinationData);
+
+    if (!createResponse?.data?.success) {
+      toast.error("Failed to create destination");
+      return;
     }
+
+    const destinationId = createResponse?.data?.data?.id;
+    const attractions = createResponse?.data?.data?.attractions || [];
+
+    const formData = new FormData();
+
+    destinationImages.forEach((img) => {
+      formData.append("type", "destination");
+      formData.append("file", img.file);
+      formData.append("destination_id", destinationId);
+      formData.append("alt_text", img.alt_text ?? "");
+    });
+
+    /* ---------- Attraction images ---------- */
+    data.attractions.forEach((attr) => {
+      const createdAttraction = attractions.find((a) => a.name === attr.name);
+
+      if (!createdAttraction || !attr.image_file) return;
+
+      formData.append("type", "attraction");
+      formData.append("file", attr.image_file);
+      formData.append("attraction_id", createdAttraction.id);
+      formData.append("alt_text", attr.alt_text ?? "");
+    });
+
+    const imageResponse = await uploadDestinationImages(formData);
+
+    if (imageResponse?.data?.success) {
+      toast.success("Destination Created Successfully!");
+    } else {
+      toast.error("Failed to upload destination images");
+    }
+
+    navigate(`/destinations`);
   };
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     const previews = files.map((file) => ({
-      file,
+      file, // keep the File object
       preview: URL.createObjectURL(file),
       altText: "",
     }));
@@ -187,12 +214,8 @@ const AddDestinationPage = () => {
   const handleAttractionImageUpload = (e, index) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setValue(`attractions.${index}.image_url`, reader.result);
-        setValue(`attractions.${index}.image_file`, file);
-      };
-      reader.readAsDataURL(file);
+      setValue(`attractions.${index}.image_file`, file); // store the actual File
+      setValue(`attractions.${index}.image_url`, URL.createObjectURL(file)); // for preview only
     }
   };
 
@@ -1646,7 +1669,7 @@ const AddDestinationPage = () => {
               Save as Draft
             </Button>
             <Button onClick={handleSubmit(onSubmit)} size="lg" className="w-44">
-              {destinationCreateLoading ? (
+              {destinationCreateLoading || destinationImageUploadLoading ? (
                 <span className="spinner spinner-white"></span>
               ) : (
                 "Publish Destination"

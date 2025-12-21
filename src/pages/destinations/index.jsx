@@ -1,10 +1,14 @@
 import ReusableTable from "@/components/table";
 import { Button } from "@/components/ui/button";
 import { Title } from "@/components/ui/typography";
-import { useDestinationListQuery } from "@/features/destination/destinationApiSlice";
+import {
+  useDeleteDestinationMutation,
+  useDestinationListQuery,
+} from "@/features/destination/destinationApiSlice";
 import { Plus } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 const DestinationsPage = () => {
   const [page, setPage] = useState(1);
@@ -24,7 +28,50 @@ const DestinationsPage = () => {
     page_size: pageSize,
   });
 
-  const destinations = destinationData?.data || [];
+  const [deleteDestination] = useDeleteDestinationMutation();
+
+  const hadleDeleteDestination = async (dest_id) => {
+    console.log(dest_id);
+    const res = await deleteDestination(dest_id);
+
+    if (res && res.data?.success) {
+      toast.success("Destination deleted successfully");
+    } else {
+      toast.success("Destination could not be deleted!");
+    }
+  };
+
+  const table_options = [
+    {
+      label: "View",
+      action: null,
+    },
+    {
+      label: "Update",
+      action: null,
+    },
+    {
+      label: "Delete",
+      action: hadleDeleteDestination,
+    },
+  ];
+
+  const destinations =
+    destinationData?.data?.map((item) => ({
+      ...item,
+      tags: (
+        <div className="space-x-1">
+          {item.tags?.map((t, idx) => (
+            <span
+              key={idx}
+              className="inline-block py-1 px-2.5 capitalize text-xs rounded-md bg-primary/10 text-primary"
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+      ),
+    })) || [];
   const total_item = destinationData?.meta?.total || 0;
 
   console.log("Destinations Data:", destinations);
@@ -48,8 +95,11 @@ const DestinationsPage = () => {
         columns={destinationColumns}
         isLoading={isLoading}
         page={page}
-        page_size={pageSize}
+        setPage={setPage}
+        pageSize={pageSize}
+        setPageSize={setPageSize}
         totalItems={total_item}
+        table_options={table_options}
         className="mt-4"
       />
     </section>

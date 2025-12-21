@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ReusableTable from "@/components/table";
-import { Text, Title } from "@/components/ui/typography";
+import { Title } from "@/components/ui/typography";
 import { useUserListQuery } from "@/features/auth/authApiSlice";
 import moment from "moment";
 import { TableProfile } from "@/components/ui/table";
@@ -45,7 +45,20 @@ const UserPage = () => {
     })) || [];
   const total_item = usersData?.meta?.total || 0;
 
-  console.log("users Data:", users);
+  const table_options = [
+    {
+      label: "View",
+      action: null,
+    },
+    {
+      label: "Update",
+      action: null,
+    },
+    {
+      label: "Delete",
+      action: null,
+    },
+  ];
 
   return (
     <section className="space-y-8">
@@ -58,8 +71,11 @@ const UserPage = () => {
         columns={destinationColumns}
         isLoading={isLoading}
         page={page}
-        page_size={pageSize}
+        setPage={setPage}
+        pageSize={pageSize}
+        setPageSize={setPageSize}
         totalItems={total_item}
+        table_options={table_options}
         className="mt-4"
       />
     </section>

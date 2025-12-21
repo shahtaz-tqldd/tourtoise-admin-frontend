@@ -36,6 +36,17 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
       },
     }),
 
+    deleteDestination: builder.mutation({
+      query: (destination_id) => {
+        return {
+          url: `/destinations/${destination_id}`,
+          method: "DELETE",
+        };
+      },
+      invalidatesTags: ["destination-list"],
+    }),
+
+    // accommodation type
     accomodationTypeList: builder.query({
       query: () => {
         return {
@@ -43,8 +54,21 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
           method: "GET",
         };
       },
+      providesTags: ["accommodation-type"],
     }),
 
+    createAccomodationType: builder.mutation({
+      query: (payload) => {
+        return {
+          url: "/destinations/accommodation-type/create",
+          method: "POST",
+          body: payload,
+        };
+      },
+      invalidatesTags: ["accommodation-type"],
+    }),
+
+    // transport type
     transportTypeList: builder.query({
       query: () => {
         return {
@@ -52,8 +76,21 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
           method: "GET",
         };
       },
+      providesTags: ["transport-type"],
     }),
 
+    createTransportType: builder.mutation({
+      query: (payload) => {
+        return {
+          url: "/destinations/transport-type/create",
+          method: "POST",
+          body: payload,
+        };
+      },
+      invalidatesTags: ["transport-type"],
+    }),
+
+    // activity type
     activityTypeList: builder.query({
       query: () => {
         return {
@@ -61,6 +98,18 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
           method: "GET",
         };
       },
+      providesTags: ["activity-type"],
+    }),
+
+    createActivityType: builder.mutation({
+      query: (payload) => {
+        return {
+          url: "/destinations/activity-type/create",
+          method: "POST",
+          body: payload,
+        };
+      },
+      invalidatesTags: ["activity-type"],
     }),
   }),
 });
@@ -69,7 +118,13 @@ export const {
   useCreateNewDestinationMutation,
   useUploadDestinationImagesMutation,
   useDestinationListQuery,
+  useDeleteDestinationMutation,
+
+  // additional
   useAccomodationTypeListQuery,
+  useCreateAccomodationTypeMutation,
   useTransportTypeListQuery,
+  useCreateTransportTypeMutation,
   useActivityTypeListQuery,
+  useCreateActivityTypeMutation,
 } = destinationApiSlice;

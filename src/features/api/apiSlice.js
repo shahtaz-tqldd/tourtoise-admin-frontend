@@ -76,7 +76,13 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 export const apiSlice = createApi({
   reducerPath: "apiSlice",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["auth", "destination-list"],
+  tagTypes: [
+    "auth",
+    "destination-list",
+    "accommodation-type",
+    "transport-type",
+    "activity-type",
+  ],
   keepUnusedDataFor: 300, // Don't keep any unused data
   refetchOnMountOrArgChange: false, // Always refetch when component mounts
   refetchOnReconnect: true, // Refetch on reconnection

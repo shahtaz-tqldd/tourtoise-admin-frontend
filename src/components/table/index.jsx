@@ -7,6 +7,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Ellipsis } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { Select, SelectItem, SelectContent, SelectTrigger } from "../ui/select";
 
 const ReusableTable = ({
   data,
@@ -14,7 +21,10 @@ const ReusableTable = ({
   isLoading,
   totalItems,
   page,
-  page_size,
+  setPage,
+  pageSize,
+  setPageSize,
+  table_options,
   className,
 }) => {
   return (
@@ -34,10 +44,14 @@ const ReusableTable = ({
         </TableHeader>
         <TableBody>
           {isLoading ? (
-            <div className="h-40 w-full flex flex-col text-center gap-4 center">
-              <span className="spinner"></span>
-              <span>Loading Data</span>
-            </div>
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-40">
+                <div className="flex flex-col items-center justify-center h-full gap-4">
+                  <span className="spinner"></span>
+                  <span>Loading Data</span>
+                </div>
+              </TableCell>
+            </TableRow>
           ) : (
             data.map((item, i) => (
               <TableRow key={i}>
@@ -47,9 +61,21 @@ const ReusableTable = ({
                     className={j === columns.length - 1 ? "text-right " : ""}
                   >
                     {column.accessorKey === "action" ? (
-                      <button className="">
-                        <Ellipsis className="h-9 w-9 rounded-full hover:bg-primary/10 p-2.5 tr" />
-                      </button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger className="rounded-full">
+                          <Ellipsis className="h-9 w-9 rounded-full hover:bg-gray-200 tr p-2.5 rounded-full" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          {table_options?.map((option, idx) => (
+                            <DropdownMenuItem
+                              key={idx}
+                              onClick={() => option?.action(item["id"])}
+                            >
+                              {option.label}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     ) : (
                       item[column.accessorKey]
                     )}
@@ -60,11 +86,24 @@ const ReusableTable = ({
           )}
         </TableBody>
       </Table>
-      <p className="text-sm px-2 mt-6 text-muted-foreground">
-        Showing {(page - 1) * page_size + 1} to{" "}
-        {Math.min(page * page_size + page_size, totalItems)} of {totalItems}{" "}
-        items
-      </p>
+      <div className="flx gap-4 mt-6">
+        <Select
+          value={String(pageSize)}
+          onValueChange={(value) => setPageSize(Number(value))}
+        >
+          <SelectTrigger>{pageSize}</SelectTrigger>
+          <SelectContent>
+            <SelectItem value="10">10</SelectItem>
+            <SelectItem value="20">20</SelectItem>
+            <SelectItem value="50">50</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-sm px-2 text-muted-foreground">
+          Showing {(page - 1) * pageSize + 1} to{" "}
+          {Math.min(page * pageSize + pageSize, totalItems)} of {totalItems}{" "}
+          items
+        </p>
+      </div>
     </section>
   );
 };

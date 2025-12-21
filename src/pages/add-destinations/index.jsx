@@ -10,6 +10,7 @@ import {
   SelectContent,
   SelectItem,
   SelectValue,
+  SelectSeparator,
 } from "@/components/ui/select";
 import {
   Download,
@@ -37,9 +38,19 @@ import {
 } from "@/features/destination/destinationApiSlice";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import AddAccommodationTypeDialog from "./add-accommodation-type-dialog";
+import AddTransportTypeDialog from "./add-transport-type-dialog";
+import AddActivityTypeDialog from "./add-activity-type-dialog";
+import { COUNTRY_LIST } from "@/lib/countries";
 
 const AddDestinationPage = () => {
   const navigate = useNavigate();
+  const [addAccommodationTypeDialogOpen, setAddAccommodationTypeDialogOpen] =
+    useState(false);
+  const [addTransportTypeDialogOpen, setAddTransportTypeDialogOpen] =
+    useState(false);
+  const [addActivityTypeDialogOpen, setAddActivityTypeDialogOpen] =
+    useState(false);
   const [destinationImages, setDestinationImages] = useState([]);
   const { register, control, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
@@ -228,6 +239,10 @@ const AddDestinationPage = () => {
     setValue(`attractions.${index}.image_file`, null);
   };
 
+  const sortedCountries = [...COUNTRY_LIST].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+
   return (
     <div className="">
       <div className="flex justify-between items-start mb-8">
@@ -270,13 +285,33 @@ const AddDestinationPage = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Country *</Label>
-                  <Input
-                    placeholder="e.g., Bangladesh"
-                    className="mt-1.5"
-                    {...register("country", { required: true })}
+                  <Label htmlFor="country">Country</Label>
+                  <Controller
+                    control={control}
+                    name="country"
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="mt-1.5 w-full">
+                          <SelectValue placeholder="Select Country" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[320px]">
+                          {sortedCountries.map((item) => (
+                            <SelectItem key={item.code} value={item.name}>
+                              <span className="flex flex-row-reverse gap-2 justify-end">
+                                <span>{item.name}</span>
+                                <span>{item.flag}</span>
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   />
                 </div>
+
                 <div>
                   <Label>Region *</Label>
                   <Input
@@ -739,6 +774,15 @@ const AddDestinationPage = () => {
                               <SelectValue placeholder="Select Accommodation Type" />
                             </SelectTrigger>
                             <SelectContent>
+                              <button
+                                onClick={() =>
+                                  setAddAccommodationTypeDialogOpen(true)
+                                }
+                                className="text-sm p-1.5 flx gap-2 rounded-md hover:bg-gray-100 tr w-full"
+                              >
+                                <Plus size={14} /> Accommodation Type
+                              </button>
+                              <SelectSeparator />
                               {accommodationTypeListLoading ? (
                                 <div className="h-16 w-full center">
                                   <span className="spinner"></span>
@@ -889,6 +933,15 @@ const AddDestinationPage = () => {
                               <SelectValue placeholder="Select Accommodation Type" />
                             </SelectTrigger>
                             <SelectContent>
+                              <button
+                                onClick={() =>
+                                  setAddAccommodationTypeDialogOpen(true)
+                                }
+                                className="text-sm p-1.5 flx gap-2 rounded-md hover:bg-gray-100 tr w-full"
+                              >
+                                <Plus size={14} /> Accommodation Type
+                              </button>
+                              <SelectSeparator />
                               {accommodationTypeListLoading ? (
                                 <div className="h-16 w-full center">
                                   <span className="spinner"></span>
@@ -1061,6 +1114,15 @@ const AddDestinationPage = () => {
                               <SelectValue placeholder="Select Transport Type" />
                             </SelectTrigger>
                             <SelectContent>
+                              <button
+                                onClick={() =>
+                                  setAddTransportTypeDialogOpen(true)
+                                }
+                                className="text-sm p-1.5 flx gap-2 rounded-md hover:bg-gray-100 tr w-full"
+                              >
+                                <Plus size={14} /> Transport Type
+                              </button>
+                              <SelectSeparator />
                               {transportTypeListLoading ? (
                                 <div className="h-16 w-full center">
                                   <span className="spinner"></span>
@@ -1182,6 +1244,15 @@ const AddDestinationPage = () => {
                               <SelectValue placeholder="Select Activity Type" />
                             </SelectTrigger>
                             <SelectContent>
+                              <button
+                                onClick={() =>
+                                  setAddActivityTypeDialogOpen(true)
+                                }
+                                className="text-sm p-1.5 flx gap-2 rounded-md hover:bg-gray-100 tr w-full"
+                              >
+                                <Plus size={14} /> Activity Type
+                              </button>
+                              <SelectSeparator />
                               {activityTypeListLoading ? (
                                 <div className="h-16 w-full center">
                                   <span className="spinner"></span>
@@ -1373,11 +1444,16 @@ const AddDestinationPage = () => {
                               <SelectValue placeholder="Select dietary info" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Halal">Halal</SelectItem>
-                              <SelectItem value="Vegetarian">
+                              <SelectItem value="halal">Halal</SelectItem>
+                              <SelectItem value="non-halal">
+                                Non-Halal
+                              </SelectItem>
+                              <SelectItem value="vegetarian">
                                 Vegetarian
                               </SelectItem>
-                              <SelectItem value="Vegan">Vegan</SelectItem>
+                              <SelectItem value="non-vegetarian">
+                                Non-vegetarian
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         )}
@@ -1678,6 +1754,20 @@ const AddDestinationPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Additonal component */}
+      <AddAccommodationTypeDialog
+        open={addAccommodationTypeDialogOpen}
+        setOpen={setAddAccommodationTypeDialogOpen}
+      />
+      <AddTransportTypeDialog
+        open={addTransportTypeDialogOpen}
+        setOpen={setAddTransportTypeDialogOpen}
+      />
+      <AddActivityTypeDialog
+        open={addActivityTypeDialogOpen}
+        setOpen={setAddActivityTypeDialogOpen}
+      />
     </div>
   );
 };

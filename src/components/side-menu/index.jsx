@@ -34,7 +34,7 @@ const SideMenu = () => {
   ];
 
   return (
-    <div className="max-w-[240px] w-full h-screen bg-primary/15 p-6 pr-2 flex flex-col justify-between">
+    <div className="max-w-[240px] w-full h-screen bg-primary/10 p-6 pr-2 flex flex-col justify-between">
       <div className="space-y-6">
         <Link to="/" className="flex items-center gap-2">
           <img src="/logo.png" className="h-10 w-10 object-contain" />
@@ -42,7 +42,11 @@ const SideMenu = () => {
         </Link>
         <ul className="space-y-1 w-full">
           {navItems.map((item) => {
-            const isActive = location.pathname === item.link;
+            // Fix: Check if the current pathname starts with the link of the navigation item
+            // Special case for the root route "/"
+            const isActive = item.link === "/" 
+              ? location.pathname === item.link 
+              : location.pathname.startsWith(item.link);
 
             return (
               <li key={item.id}>
@@ -71,8 +75,8 @@ const SideMenu = () => {
           className="h-9 w-9 rounded-full"
         />
         <div className="flex-1">
-          <h2 className="text-sm text-primary font-medium">Shahtaz Rahman</h2>
-          <p className="text-xs text-primary/75">Store Admin</p>
+          <h2 className="text-sm text-emerald-700 font-medium">Shahtaz Rahman</h2>
+          <p className="text-xs text-primary">Admin Manager</p>
         </div>
       </div>
     </div>

@@ -1,19 +1,20 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useGetMyProfileQuery } from "@/features/settings/settingsApiSlice";
 import { userDetailsFetched } from "@/features/auth/authSlice";
+import { useSelfDetailsQuery } from "@/features/auth/authApiSlice";
 
 const useAuth = () => {
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
-  const authChecked = !isAuthenticated || (isSuccess && data?.data);
 
-  const { data, isSuccess, isLoading, refetch } = useGetMyProfileQuery(
+  const { data, isSuccess, isLoading, refetch } = useSelfDetailsQuery(
     undefined,
     {
       skip: !isAuthenticated,
-    }
+    },
   );
+
+  const authChecked = !isAuthenticated || (isSuccess && data?.data);
 
   useEffect(() => {
     if (isAuthenticated && isSuccess && data?.data) {

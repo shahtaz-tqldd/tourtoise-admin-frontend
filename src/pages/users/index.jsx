@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import ReusableTable from "@/components/table";
-import { Title } from "@/components/ui/typography";
-import { useUserListQuery } from "@/features/auth/authApiSlice";
 import moment from "moment";
+
 import { TableProfile } from "@/components/ui/table";
+import { Title } from "@/components/ui/typography";
+import ReusableTable from "@/components/table";
+
+import { useUserAccountListQuery } from "@/features/auth/authApiSlice";
 
 const UserPage = () => {
   const [page, setPage] = useState(1);
@@ -17,7 +19,7 @@ const UserPage = () => {
     { header: "Action", accessorKey: "action" },
   ];
 
-  const { data: usersData, isLoading } = useUserListQuery({
+  const { data: usersData, isLoading } = useUserAccountListQuery({
     page: page,
     page_size: pageSize,
   });
@@ -25,14 +27,9 @@ const UserPage = () => {
   const users =
     usersData?.data?.map((user) => ({
       ...user,
-      name: (
-        <TableProfile
-          name={user.first_name + " " + user.last_name}
-          email={user.email}
-        />
-      ),
-      last_login: user.last_login
-        ? moment(user.last_login).fromNow()
+      name: <TableProfile name={user.name} email={user.email} />,
+      last_login: user.last_active_at
+        ? moment(user.last_active_at).fromNow()
         : "Never logged in",
       region: user.region || "N/A",
       joined_at: moment(user.created_at).format("MMMM Do, YYYY"),

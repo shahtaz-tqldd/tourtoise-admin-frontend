@@ -22,6 +22,7 @@ export function Text({ children, variant = "md", className }) {
     lg: "text-base md:text-lg",
     md: "text-sm md:text-base",
     sm: "text-xs md:text-sm",
+    xs: "text-xs md:text-xs",
   };
 
   return (

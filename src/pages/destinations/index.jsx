@@ -7,10 +7,11 @@ import {
 } from "@/features/destination/destinationApiSlice";
 import { Plus } from "lucide-react";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const DestinationsPage = () => {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -28,7 +29,8 @@ const DestinationsPage = () => {
     page_size: pageSize,
   });
 
-  const [deleteDestination] = useDeleteDestinationMutation();
+  const [deleteDestination, { isLoading: deleteLoading }] =
+    useDeleteDestinationMutation();
 
   const hadleDeleteDestination = async (dest_id) => {
     console.log(dest_id);
@@ -41,6 +43,10 @@ const DestinationsPage = () => {
     }
   };
 
+  const handleUpdate = (dest_id) => {
+    navigate(`/destinations/update/${dest_id}`);
+  };
+
   const table_options = [
     {
       label: "View",
@@ -48,11 +54,11 @@ const DestinationsPage = () => {
     },
     {
       label: "Update",
-      action: null,
+      action: handleUpdate,
     },
     {
       label: "Delete",
-      action: hadleDeleteDestination,
+      type: "delete",
     },
   ];
 
@@ -100,6 +106,8 @@ const DestinationsPage = () => {
         setPageSize={setPageSize}
         totalItems={total_item}
         table_options={table_options}
+        onDeleteConfirm={hadleDeleteDestination}
+        deleteLoading={deleteLoading}
         className="mt-4"
       />
     </section>

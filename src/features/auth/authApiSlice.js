@@ -5,60 +5,38 @@ export const authApiSlice = apiSlice.injectEndpoints({
     login: builder.mutation({
       query: (data) => {
         return {
-          url: `/auth/login`,
+          url: `/admin/accounts/login/`,
           method: "POST",
           body: data,
         };
       },
-      invalidatesTags: ["auth", "my-profile"],
+      invalidatesTags: ["my-profile"],
     }),
 
-    registration: builder.mutation({
-      query: (data) => {
+    selfDetails: builder.query({
+      query: () => {
         return {
-          url: `/auth/register`,
-          method: "POST",
-          body: data,
+          url: `/admin/accounts/self-details`,
+          method: "GET",
         };
       },
-      invalidatesTags: ["auth"],
-    }),
-
-    forgotPassword: builder.mutation({
-      query: (payload) => {
-        return {
-          url: `/auth/forget-password`,
-          method: "POST",
-          body: payload,
-        };
-      },
-    }),
-
-    resetPassword: builder.mutation({
-      query: (payload) => {
-        const { bodyData, userId, token } = payload;
-        return {
-          url: `auth/forget-password/${userId}/${token}`,
-          method: "POST",
-          body: bodyData,
-        };
-      },
+      providesTags: ["my-profile"],
     }),
 
     changePassword: builder.mutation({
       query: (payload) => {
         return {
-          url: `/auth/reset-password`,
+          url: `/admin/accounts/change-password`,
           method: "PATCH",
           body: payload,
         };
       },
     }),
 
-    userList: builder.query({
+    userAccountList: builder.query({
       query: ({ page, page_size, search_str }) => {
         return {
-          url: `/auth/list?page=${page}&page_size=${page_size}&search_str=${
+          url: `/admin/accounts/list/?page=${page}&page_size=${page_size}&search_str=${
             search_str || ""
           }`,
           method: "GET",
@@ -70,9 +48,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useLoginMutation,
-  useRegistrationMutation,
-  useForgotPasswordMutation,
-  useResetPasswordMutation,
+  useSelfDetailsQuery,
   useChangePasswordMutation,
-  useUserListQuery,
+  useUserAccountListQuery,
 } = authApiSlice;

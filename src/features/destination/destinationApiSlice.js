@@ -5,17 +5,7 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
     createNewDestination: builder.mutation({
       query: (formData) => {
         return {
-          url: `/destinations/create`,
-          method: "POST",
-          body: formData,
-        };
-      },
-    }),
-
-    uploadDestinationImages: builder.mutation({
-      query: (formData) => {
-        return {
-          url: `/destinations/upload-images`,
+          url: `/admin/destinations/create/`,
           method: "POST",
           body: formData,
         };
@@ -25,7 +15,7 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
 
     destinationList: builder.query({
       query: ({ page = 1, page_size = 10, search_query = "" }) => {
-        let url = `/destinations/list?page=${page}&page_size=${page_size}`;
+        let url = `/admin/destinations/list?page=${page}&page_size=${page_size}`;
         if (search_query) {
           url += `&search=${search_query}`;
         }
@@ -34,97 +24,47 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
           method: "GET",
         };
       },
+      providesTags: ["destination-list"],
     }),
 
-    deleteDestination: builder.mutation({
+    destinationDetail: builder.query({
       query: (destination_id) => {
         return {
-          url: `/destinations/${destination_id}`,
-          method: "DELETE",
+          url: `/admin/destinations/${destination_id}/detail/`,
+          method: "GET",
+        };
+      },
+    }),
+
+    updateDestination: builder.mutation({
+      query: ({ destination_id, formData }) => {
+        return {
+          url: `/admin/destinations/${destination_id}/update/`,
+          method: "PUT",
+          body: formData,
         };
       },
       invalidatesTags: ["destination-list"],
     }),
 
-    // accommodation type
-    accomodationTypeList: builder.query({
-      query: () => {
+    deleteDestination: builder.mutation({
+      query: (destination_id) => {
         return {
-          url: "/destinations/accommodation-type/list",
-          method: "GET",
+          url: `/admin/destinations/${destination_id}/delete/`,
+          method: "DELETE",
         };
       },
-      providesTags: ["accommodation-type"],
-    }),
-
-    createAccomodationType: builder.mutation({
-      query: (payload) => {
-        return {
-          url: "/destinations/accommodation-type/create",
-          method: "POST",
-          body: payload,
-        };
-      },
-      invalidatesTags: ["accommodation-type"],
-    }),
-
-    // transport type
-    transportTypeList: builder.query({
-      query: () => {
-        return {
-          url: "/destinations/transport-type/list",
-          method: "GET",
-        };
-      },
-      providesTags: ["transport-type"],
-    }),
-
-    createTransportType: builder.mutation({
-      query: (payload) => {
-        return {
-          url: "/destinations/transport-type/create",
-          method: "POST",
-          body: payload,
-        };
-      },
-      invalidatesTags: ["transport-type"],
-    }),
-
-    // activity type
-    activityTypeList: builder.query({
-      query: () => {
-        return {
-          url: "/destinations/activity-type/list",
-          method: "GET",
-        };
-      },
-      providesTags: ["activity-type"],
-    }),
-
-    createActivityType: builder.mutation({
-      query: (payload) => {
-        return {
-          url: "/destinations/activity-type/create",
-          method: "POST",
-          body: payload,
-        };
-      },
-      invalidatesTags: ["activity-type"],
+      invalidatesTags: ["destination-list"],
     }),
   }),
 });
 
 export const {
   useCreateNewDestinationMutation,
-  useUploadDestinationImagesMutation,
   useDestinationListQuery,
+  useDestinationDetailQuery,
+  useUpdateDestinationMutation,
   useDeleteDestinationMutation,
-
-  // additional
-  useAccomodationTypeListQuery,
-  useCreateAccomodationTypeMutation,
-  useTransportTypeListQuery,
-  useCreateTransportTypeMutation,
-  useActivityTypeListQuery,
-  useCreateActivityTypeMutation,
 } = destinationApiSlice;
+
+export const useCreateDestinationMutation = useCreateNewDestinationMutation;

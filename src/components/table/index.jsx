@@ -14,6 +14,9 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Select, SelectItem, SelectContent, SelectTrigger } from "../ui/select";
+import Pagination from "./pagination";
+import DeleteDialog from "../dialog/delete-dialog";
+import { useState } from "react";
 
 const ReusableTable = ({
   data,
@@ -25,8 +28,24 @@ const ReusableTable = ({
   pageSize,
   setPageSize,
   table_options,
+  onDeleteConfirm,
+  deleteLoading,
   className,
 }) => {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+
+  const openDeleteDialog = (id) => {
+    setSelectedId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirm = async () => {
+    if (!selectedId) return;
+    await onDeleteConfirm(selectedId);
+    setDeleteDialogOpen(false);
+    setSelectedId(null);
+  };
   return (
     <section className={className}>
       <Table>
@@ -69,7 +88,11 @@ const ReusableTable = ({
                           {table_options?.map((option, idx) => (
                             <DropdownMenuItem
                               key={idx}
-                              onClick={() => option?.action(item["id"])}
+                              onClick={() =>
+                                option.type === "delete"
+                                  ? openDeleteDialog(item.id)
+                                  : option?.action?.(item.id)
+                              }
                             >
                               {option.label}
                             </DropdownMenuItem>
@@ -86,24 +109,38 @@ const ReusableTable = ({
           )}
         </TableBody>
       </Table>
-      <div className="flx gap-4 mt-6">
-        <Select
-          value={String(pageSize)}
-          onValueChange={(value) => setPageSize(Number(value))}
-        >
-          <SelectTrigger>{pageSize}</SelectTrigger>
-          <SelectContent>
-            <SelectItem value="10">10</SelectItem>
-            <SelectItem value="20">20</SelectItem>
-            <SelectItem value="50">50</SelectItem>
-          </SelectContent>
-        </Select>
-        <p className="text-sm px-2 text-muted-foreground">
-          Showing {(page - 1) * pageSize + 1} to{" "}
-          {Math.min(page * pageSize + pageSize, totalItems)} of {totalItems}{" "}
-          items
-        </p>
+      <div className="flbx mt-8">
+        <div className="flx gap-4">
+          <Select
+            value={String(pageSize)}
+            onValueChange={(value) => setPageSize(Number(value))}
+          >
+            <SelectTrigger>{pageSize}</SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-sm px-2 text-muted-foreground">
+            Showing {(page - 1) * pageSize + 1} to{" "}
+            {Math.min(page * pageSize + pageSize, totalItems)} of {totalItems}{" "}
+            items
+          </p>
+        </div>
+        <Pagination
+          page={page}
+          setPage={setPage}
+          pageSize={pageSize}
+          total={totalItems}
+        />
       </div>
+      <DeleteDialog
+        open={deleteDialogOpen}
+        setOpen={setDeleteDialogOpen}
+        onConfirm={handleConfirm}
+        isLoading={deleteLoading}
+      />
     </section>
   );
 };

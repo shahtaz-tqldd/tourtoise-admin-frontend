@@ -44,7 +44,7 @@ function TableFooter({ className, ...props }) {
       data-slot="table-footer"
       className={cn(
         "bg-muted/50 border-t font-medium [&>tr]:last:border-b-0",
-        className
+        className,
       )}
       {...props}
     />
@@ -57,7 +57,7 @@ function TableRow({ className, ...props }) {
       data-slot="table-row"
       className={cn(
         "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors",
-        className
+        className,
       )}
       {...props}
     />
@@ -70,7 +70,7 @@ function TableHead({ className, ...props }) {
       data-slot="table-head"
       className={cn(
         "text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
-        className
+        className,
       )}
       {...props}
     />
@@ -83,7 +83,7 @@ function TableCell({ className, ...props }) {
       data-slot="table-cell"
       className={cn(
         "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
-        className
+        className,
       )}
       {...props}
     />
@@ -100,7 +100,13 @@ function TableCaption({ className, ...props }) {
   );
 }
 
-function TableProfile({ className, name, email, profile_img_url = "" }) {
+function TableProfile({
+  className,
+  name,
+  email,
+  profile_img_url = "",
+  non_rounded = false,
+}) {
   return (
     <div className={cn("flx gap-2.5", className)}>
       {profile_img_url ? (
@@ -108,11 +114,19 @@ function TableProfile({ className, name, email, profile_img_url = "" }) {
           <img
             src={profile_img_url}
             alt={name}
-            className="w-10 h-10 rounded-full mr-2"
+            className={cn(
+              " mr-2",
+              non_rounded ? "rounded-xl h-12 w-12" : "rounded-full w-10 h-10",
+            )}
           />
         </div>
       ) : (
-        <div className="h-10 w-10 rounded-full center bg-primary/10 text-primary font-medium">
+        <div
+          className={cn(
+            "center bg-primary/10 text-primary font-medium",
+            non_rounded ? "rounded-xl h-12 w-12" : "rounded-full h-10 w-10 ",
+          )}
+        >
           {name.charAt(0).toUpperCase()}
         </div>
       )}

@@ -18,6 +18,29 @@ import Pagination from "./pagination";
 import DeleteDialog from "../dialog/delete-dialog";
 import { useState } from "react";
 
+function TableSkeleton({ columns, rows = 5 }) {
+  return Array.from({ length: rows }).map((_, rowIndex) => (
+    <TableRow key={rowIndex} className="border-slate-100 hover:bg-transparent">
+      {columns.map((column, columnIndex) => (
+        <TableCell
+          key={column.accessorKey}
+          className={`px-5 py-4 ${columnIndex === columns.length - 1 ? "text-right" : ""}`}
+        >
+          <div
+            className={`h-4 animate-pulse rounded-full bg-slate-200 ${
+              columnIndex === 0
+                ? "w-44"
+                : columnIndex === columns.length - 1
+                  ? "ml-auto w-10"
+                  : "w-28"
+            }`}
+          />
+        </TableCell>
+      ))}
+    </TableRow>
+  ));
+}
+
 const ReusableTable = ({
   data,
   columns,
@@ -46,94 +69,128 @@ const ReusableTable = ({
     setDeleteDialogOpen(false);
     setSelectedId(null);
   };
+
+  const hasData = data?.length > 0;
+  const itemStart = totalItems ? (page - 1) * pageSize + 1 : 0;
+  const itemEnd = Math.min(page * pageSize, totalItems || 0);
+  const shouldShowPagination = totalItems > pageSize;
+
   return (
     <section className={className}>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {columns.map((column, i) => (
-              <TableHead
-                key={column.accessorKey}
-                className={i === columns.length - 1 ? "text-right" : ""}
-              >
-                {column.header}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {isLoading ? (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-40">
-                <div className="flex flex-col items-center justify-center h-full gap-4">
-                  <span className="spinner"></span>
-                  <span>Loading Data</span>
-                </div>
-              </TableCell>
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/70">
+        <Table>
+          <TableHeader className="bg-slate-50/90">
+            <TableRow className="border-slate-200 hover:bg-transparent">
+              {columns.map((column, i) => (
+                <TableHead
+                  key={column.accessorKey}
+                  className={`h-14 px-5 text-xs font-semibold uppercase tracking-[0.04em] text-slate-500 ${
+                    i === columns.length - 1 ? "text-right" : ""
+                  }`}
+                >
+                  {column.header}
+                </TableHead>
+              ))}
             </TableRow>
-          ) : (
-            data.map((item, i) => (
-              <TableRow key={i}>
-                {columns.map((column, j) => (
-                  <TableCell
-                    key={j}
-                    className={j === columns.length - 1 ? "text-right " : ""}
-                  >
-                    {column.accessorKey === "action" ? (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger className="rounded-full">
-                          <Ellipsis className="h-9 w-9 rounded-full hover:bg-gray-200 tr p-2.5 rounded-full" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                          {table_options?.map((option, idx) => (
-                            <DropdownMenuItem
-                              key={idx}
-                              onClick={() =>
-                                option.type === "delete"
-                                  ? openDeleteDialog(item.id)
-                                  : option?.action?.(item.id)
-                              }
-                            >
-                              {option.label}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    ) : (
-                      item[column.accessorKey]
-                    )}
-                  </TableCell>
-                ))}
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableSkeleton
+                columns={columns}
+                rows={Math.min(pageSize || 5, 5)}
+              />
+            ) : !hasData ? (
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={columns.length} className="h-56 p-5">
+                  <div className="flex h-full flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 text-center">
+                    <p className="text-sm font-semibold text-slate-700">
+                      No entry found
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      There are no records to show right now.
+                    </p>
+                  </div>
+                </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-      <div className="flbx mt-8">
-        <div className="flx gap-4">
-          <Select
-            value={String(pageSize)}
-            onValueChange={(value) => setPageSize(Number(value))}
-          >
-            <SelectTrigger>{pageSize}</SelectTrigger>
-            <SelectContent>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="20">20</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-            </SelectContent>
-          </Select>
-          <p className="text-sm px-2 text-muted-foreground">
-            Showing {(page - 1) * pageSize + 1} to{" "}
-            {Math.min(page * pageSize + pageSize, totalItems)} of {totalItems}{" "}
-            items
-          </p>
-        </div>
-        <Pagination
-          page={page}
-          setPage={setPage}
-          pageSize={pageSize}
-          total={totalItems}
-        />
+            ) : (
+              data.map((item, i) => (
+                <TableRow
+                  key={i}
+                  className="border-slate-100 transition-colors hover:bg-primary/5"
+                >
+                  {columns.map((column, j) => (
+                    <TableCell
+                      key={j}
+                      className={`px-5 py-4 text-slate-700 ${
+                        j === columns.length - 1 ? "text-right" : ""
+                      }`}
+                    >
+                      {column.accessorKey === "action" ? (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger className="rounded-full outline-none transition hover:bg-slate-100 focus-visible:ring-4 focus-visible:ring-primary/10">
+                            <Ellipsis className="h-9 w-9 rounded-full p-2.5 text-slate-500" />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="rounded-2xl border-slate-200 p-1 shadow-lg">
+                            {table_options?.map((option, idx) => (
+                              <DropdownMenuItem
+                                key={idx}
+                                onClick={() =>
+                                  option.type === "delete"
+                                    ? openDeleteDialog(item.id)
+                                    : option?.action?.(item.id)
+                                }
+                                className={`rounded-xl px-3 py-2 ${
+                                  option.type === "delete"
+                                    ? "text-red-600 focus:text-red-600"
+                                    : ""
+                                }`}
+                              >
+                                {option.label}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      ) : (
+                        item[column.accessorKey]
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+        {shouldShowPagination && (
+          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-200 bg-white px-5 py-4">
+            <div className="flx gap-3">
+              <Select
+                value={String(pageSize)}
+                onValueChange={(value) => {
+                  setPageSize(Number(value));
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="h-10 rounded-2xl border-slate-200 bg-slate-50 px-4">
+                  {pageSize}
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-muted-foreground">
+                Showing {itemStart} to {itemEnd} of {totalItems} items
+              </p>
+            </div>
+            <Pagination
+              page={page}
+              setPage={setPage}
+              pageSize={pageSize}
+              total={totalItems}
+            />
+          </div>
+        )}
       </div>
       <DeleteDialog
         open={deleteDialogOpen}

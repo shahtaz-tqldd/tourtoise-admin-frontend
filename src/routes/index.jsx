@@ -8,6 +8,7 @@ import OverviewPage from "@/pages/overview";
 import UserPage from "@/pages/users";
 import DestinationsPage from "@/pages/destinations";
 import DestinationUpsertPage from "@/pages/destinations/upsert-destination";
+import DestinationDetailPage from "@/pages/destinations/destination-detail";
 
 export const routes = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ export const routes = createBrowserRouter([
       {
         path: "/destinations/update/:destination_id",
         element: <DestinationUpsertPage />,
+      },
+      {
+        path: "/destinations/:destination_id",
+        element: <DestinationDetailPage />,
       },
       {
         path: "/users",

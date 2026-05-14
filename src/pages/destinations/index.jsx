@@ -1,14 +1,32 @@
 import ReusableTable from "@/components/table";
 import { Button } from "@/components/ui/button";
+import StatusBadge from "@/components/ui/status";
+import { TableProfile } from "@/components/ui/table";
 import { Title } from "@/components/ui/typography";
 import {
   useDeleteDestinationMutation,
   useDestinationListQuery,
 } from "@/features/destination/destinationApiSlice";
 import { Plus } from "lucide-react";
+import moment from "moment";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+
+const monthLabels = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 const DestinationsPage = () => {
   const navigate = useNavigate();
@@ -18,9 +36,12 @@ const DestinationsPage = () => {
   const destinationColumns = [
     { header: "Name", accessorKey: "name" },
     { header: "Country", accessorKey: "country" },
-    { header: "Location", accessorKey: "region" },
+    { header: "Type", accessorKey: "destination_type" },
+    { header: "Budget", accessorKey: "budget_tier" },
     { header: "Tags", accessorKey: "tags" },
-    { header: "Best Time to Visit", accessorKey: "best_time" },
+    { header: "Best Time", accessorKey: "best_time" },
+    { header: "Status", accessorKey: "status" },
+    { header: "Updated", accessorKey: "updated_at" },
     { header: "Action", accessorKey: "action" },
   ];
 
@@ -32,15 +53,21 @@ const DestinationsPage = () => {
   const [deleteDestination, { isLoading: deleteLoading }] =
     useDeleteDestinationMutation();
 
-  const hadleDeleteDestination = async (dest_id) => {
-    console.log(dest_id);
-    const res = await deleteDestination(dest_id);
-
-    if (res && res.data?.success) {
+  const handleDeleteDestination = async (dest_id) => {
+    try {
+      await deleteDestination(dest_id).unwrap();
       toast.success("Destination deleted successfully");
-    } else {
-      toast.success("Destination could not be deleted!");
+    } catch (error) {
+      const message =
+        error?.data?.message ||
+        error?.data?.error?.[0] ||
+        "Destination could not be deleted";
+      toast.error(message);
     }
+  };
+
+  const handleView = (dest_id) => {
+    navigate(`/destinations/${dest_id}`);
   };
 
   const handleUpdate = (dest_id) => {
@@ -50,7 +77,7 @@ const DestinationsPage = () => {
   const table_options = [
     {
       label: "View",
-      action: null,
+      action: handleView,
     },
     {
       label: "Update",
@@ -65,22 +92,58 @@ const DestinationsPage = () => {
   const destinations =
     destinationData?.data?.map((item) => ({
       ...item,
+      name: (
+        <TableProfile
+          name={item.name}
+          email={item.slug || item.tagline || "No slug"}
+          profile_img_url={item.cover_image}
+          non_rounded
+        />
+      ),
+      destination_type: (
+        <span className="capitalize">
+          {item.destination_type?.replaceAll("_", " ") || "N/A"}
+        </span>
+      ),
+      budget_tier: (
+        <span className="capitalize">
+          {item.budget_tier?.replaceAll("_", " ") || "N/A"}
+        </span>
+      ),
+      best_time: item.best_travel_months?.length
+        ? item.best_travel_months
+            .map((month) => monthLabels[Number(month) - 1])
+            .filter(Boolean)
+            .join(", ")
+        : "N/A",
+      status: <StatusBadge status={item.status || "draft"} />,
+      updated_at: item.updated_at
+        ? moment(item.updated_at).format("MMM D, YYYY")
+        : "N/A",
       tags: (
-        <div className="space-x-1">
-          {item.tags?.map((t, idx) => (
-            <span
-              key={idx}
-              className="inline-block py-1 px-2.5 capitalize text-xs rounded-md bg-primary/10 text-primary"
-            >
-              {t}
+        <div className="flex max-w-[220px] flex-wrap gap-1">
+          {item.tags?.length ? (
+            item.tags.slice(0, 3).map((tag) => (
+              <span
+                key={tag.id || tag.slug || tag.name}
+                className="inline-block rounded-md bg-primary/10 px-2.5 py-1 text-xs capitalize text-primary"
+              >
+                {tag.name}
+              </span>
+            ))
+          ) : (
+            <span className="text-xs text-slate-500">No tags</span>
+          )}
+          {item.tags?.length > 3 && (
+            <span className="inline-block rounded-md bg-slate-100 px-2.5 py-1 text-xs text-slate-600">
+              +{item.tags.length - 3}
             </span>
-          ))}
+          )}
         </div>
       ),
     })) || [];
-  const total_item = destinationData?.meta?.total || 0;
-
-  console.log("Destinations Data:", destinations);
+  const total_item =
+    destinationData?.meta?.count || destinationData?.meta?.total || 0;
 
   return (
     <section className="space-y-8">
@@ -106,7 +169,7 @@ const DestinationsPage = () => {
         setPageSize={setPageSize}
         totalItems={total_item}
         table_options={table_options}
-        onDeleteConfirm={hadleDeleteDestination}
+        onDeleteConfirm={handleDeleteDestination}
         deleteLoading={deleteLoading}
         className="mt-4"
       />

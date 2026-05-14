@@ -15,6 +15,9 @@ const StatusBadge = ({ status }) => {
     shipped: "bg-blue-100 text-blue-700",
     delivered: "bg-emerald-100 text-emerald-700",
     processing: "bg-purple-100 text-purple-700",
+    draft: "bg-slate-100 text-slate-700",
+    published: "bg-emerald-100 text-emerald-700",
+    archived: "bg-gray-100 text-gray-700",
   };
 
   const appliedStyle = styles[normalized] ?? "bg-gray-100 text-gray-700";

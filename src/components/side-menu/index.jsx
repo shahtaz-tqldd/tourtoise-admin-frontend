@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 
-import { LayoutDashboard, Users, PlaneTakeoff, Settings } from "lucide-react";
+import { LayoutDashboard, Users, PlaneTakeoff, Settings, BaggageClaim } from "lucide-react";
 
 const SideMenu = () => {
   const location = useLocation();
@@ -24,6 +24,12 @@ const SideMenu = () => {
       label: "Destinations",
       link: "/destinations",
       icon: <PlaneTakeoff size={18} />,
+    },
+    {
+      id: 4,
+      label: "Trips",
+      link: "/trips",
+      icon: <BaggageClaim size={18} />,
     },
     {
       id: 10,

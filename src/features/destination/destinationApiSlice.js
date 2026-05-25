@@ -40,7 +40,7 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
       query: ({ destination_id, formData }) => {
         return {
           url: `/admin/destinations/${destination_id}/update/`,
-          method: "PUT",
+          method: "PATCH",
           body: formData,
         };
       },
@@ -56,6 +56,37 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: ["destination-list"],
     }),
+
+    downloadTemplate: builder.query({
+      query: () => {
+        return {
+          url: `/admin/destinations/bulk-template/`,
+          method: "GET",
+        };
+      },
+    }),
+
+    bulkUpload: builder.mutation({
+      query: (payload) => {
+        return {
+          url: `/admin/destinations/bulk-upload/`,
+          method: "POST",
+          body: payload,
+        };
+      },
+      invalidatesTags: ["destination-list"],
+    }),
+
+    scrapDestination: builder.mutation({
+      query: (payload) => {
+        return {
+          url: `/admin/destinations/run-spider/`,
+          method: "POST",
+          body: payload,
+        };
+      },
+      invalidatesTags: ["destination-list"],
+    }),
   }),
 });
 
@@ -65,6 +96,9 @@ export const {
   useDestinationDetailQuery,
   useUpdateDestinationMutation,
   useDeleteDestinationMutation,
+  useDownloadTemplateQuery,
+  useBulkUploadMutation,
+  useScrapDestinationMutation,
 } = destinationApiSlice;
 
 export const useCreateDestinationMutation = useCreateNewDestinationMutation;

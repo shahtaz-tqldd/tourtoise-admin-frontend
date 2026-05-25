@@ -105,37 +105,78 @@ function TableProfile({
   name,
   email,
   profile_img_url = "",
+  thumbnail_img_url = "",
   non_rounded = false,
 }) {
+  const avatarClassName = cn(
+    "shrink-0 overflow-hidden",
+    non_rounded ? "h-12 w-12 rounded-xl" : "h-10 w-10 rounded-full",
+  );
+  const imageUrl = thumbnail_img_url || getThumbnailImageUrl(profile_img_url);
+
   return (
-    <div className={cn("flx gap-2.5", className)}>
-      {profile_img_url ? (
-        <div>
+    <div className={cn("flx min-w-0 gap-2.5", className)}>
+      {imageUrl ? (
+        <div className={avatarClassName}>
           <img
-            src={profile_img_url}
+            src={imageUrl}
             alt={name}
-            className={cn(
-              " mr-2",
-              non_rounded ? "rounded-xl h-12 w-12" : "rounded-full w-10 h-10",
-            )}
+            className="h-full w-full object-cover"
+            loading="lazy"
+            decoding="async"
+            fetchPriority="low"
           />
         </div>
       ) : (
         <div
           className={cn(
             "center bg-primary/10 text-primary font-medium",
-            non_rounded ? "rounded-xl h-12 w-12" : "rounded-full h-10 w-10 ",
+            avatarClassName,
           )}
         >
           {name.charAt(0).toUpperCase()}
         </div>
       )}
-      <div>
+      <div className="min-w-0 flex-1">
         <Title variant="xs">{name}</Title>
         <Text variant="sm">{email}</Text>
       </div>
     </div>
   );
+}
+
+function getThumbnailImageUrl(url) {
+  if (!url) return "";
+
+  try {
+    const imageUrl = new URL(url, window.location.origin);
+    const host = imageUrl.hostname;
+
+    if (host.includes("cloudinary.com")) {
+      imageUrl.pathname = imageUrl.pathname.replace(
+        "/upload/",
+        "/upload/c_fill,w_96,h_96,q_auto,f_auto/",
+      );
+      return imageUrl.toString();
+    }
+
+    if (host.includes("images.unsplash.com")) {
+      imageUrl.searchParams.set("w", "96");
+      imageUrl.searchParams.set("h", "96");
+      imageUrl.searchParams.set("fit", "crop");
+      imageUrl.searchParams.set("q", "60");
+      return imageUrl.toString();
+    }
+
+    if (host.includes("imagekit.io")) {
+      imageUrl.searchParams.set("tr", "w-96,h-96,q-60");
+      return imageUrl.toString();
+    }
+
+    return url;
+  } catch {
+    return url;
+  }
 }
 
 export {

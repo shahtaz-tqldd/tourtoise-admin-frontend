@@ -63,14 +63,11 @@ const LoginPage = () => {
       <div className="grid min-h-screen lg:grid-cols-2">
         <div className="hidden lg:flex items-center justify-center p-4">
           <div>
-            <img
-              src="https://www.complygate.co.uk/assets/img/overseas-credit-checks.webp"
-              className="h-80 object-contain mb-6"
-            />
+            <img src="/logo.png" className="h-40 object-contain mb-6" />
 
             <div className="max-w-xl">
               <h1 className="text-5xl text-primary font-semibold leading-tight">
-                your smart travel companion
+                tourtoise platform management
               </h1>
             </div>
           </div>

@@ -693,7 +693,7 @@ function CheckboxField({ control, name, label }) {
 
 function StepShell({ title, description, children }) {
   return (
-    <section className="rounded-4xl bg-white p-8 border">
+    <section className="min-w-0 rounded-4xl bg-white p-8 border">
       <div className="mb-10">
         <Title variant="xs">{title}</Title>
         <Text variant="sm" className="mt-1">
@@ -1633,7 +1633,7 @@ const DestinationUpsertPage = () => {
   }
 
   return (
-    <section className="space-y-6">
+    <section className="min-w-0 space-y-6">
       <div className="flbx gap-4">
         <div>
           <Link
@@ -1656,10 +1656,10 @@ const DestinationUpsertPage = () => {
         <form
           id="destination-form"
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-5"
+          className="min-w-0 space-y-5"
         >
-          <div className="rounded-full border border-slate-200 bg-white py-2 px-3 flbx">
-            <div className="flex gap-2 overflow-x-auto">
+          <div className="flex min-w-0 items-center justify-between gap-3 rounded-full border border-slate-200 bg-white py-2 px-3">
+            <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto">
               {steps.map((step, index) => {
                 const isActive = activeStep === index;
                 const isComplete = activeStep > index;
@@ -1694,7 +1694,7 @@ const DestinationUpsertPage = () => {
               type="submit"
               form="destination-form"
               disabled={isSaving}
-              className="!rounded-full !pr-4"
+              className="shrink-0 !rounded-full !pr-4"
             >
               {isSaving ? (
                 <Loader2 className="animate-spin" size={16} />

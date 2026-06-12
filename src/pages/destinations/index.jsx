@@ -26,6 +26,7 @@ import {
   useDestinationListQuery,
   useDownloadTemplateQuery,
   useScrapDestinationMutation,
+  useUpdateDestinationMutation,
 } from "@/features/destination/destinationApiSlice";
 import {
   ChevronDown,
@@ -80,7 +81,6 @@ const DestinationsPage = () => {
     { header: "Country", accessorKey: "country" },
     { header: "Type", accessorKey: "destination_type" },
     { header: "Budget", accessorKey: "budget_tier" },
-    { header: "Tags", accessorKey: "tags" },
     { header: "Best Time", accessorKey: "best_time" },
     { header: "Status", accessorKey: "status" },
     { header: "Updated", accessorKey: "updated_at" },
@@ -103,6 +103,8 @@ const DestinationsPage = () => {
 
   const [deleteDestination, { isLoading: deleteLoading }] =
     useDeleteDestinationMutation();
+  const [updateDestination, { isLoading: publishLoading }] =
+    useUpdateDestinationMutation();
   const [bulkUpload, { isLoading: bulkUploading }] = useBulkUploadMutation();
   const [scrapDestination, { isLoading: scrapLoading }] =
     useScrapDestinationMutation();
@@ -226,6 +228,22 @@ const DestinationsPage = () => {
 
   const handleUpdate = (dest_id) => {
     navigate(`/destinations/update/${dest_id}`);
+  };
+
+  const handlePublishDestination = async (dest_id) => {
+    try {
+      const formData = new FormData();
+      formData.append("status", "publish");
+
+      await updateDestination({ destination_id: dest_id, formData }).unwrap();
+      toast.success("Destination published successfully");
+    } catch (error) {
+      const message =
+        error?.data?.message ||
+        error?.data?.error?.[0] ||
+        "Destination could not be published";
+      toast.error(message);
+    }
   };
 
   const handleOpenTemplateDialog = () => {
@@ -353,6 +371,12 @@ const DestinationsPage = () => {
       action: handleUpdate,
     },
     {
+      label: publishLoading ? "Publishing..." : "Publish",
+      action: handlePublishDestination,
+      hidden: (item) => item.raw_status !== "draft",
+      disabled: () => publishLoading,
+    },
+    {
       label: "Delete",
       type: "delete",
     },
@@ -361,6 +385,7 @@ const DestinationsPage = () => {
   const destinations =
     destinationData?.data?.map((item) => ({
       ...item,
+      raw_status: String(item.status || "draft").toLowerCase(),
       name: (
         <TableProfile
           name={item.name}

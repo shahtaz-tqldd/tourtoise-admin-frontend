@@ -131,23 +131,26 @@ const ReusableTable = ({
                             <Ellipsis className="h-9 w-9 rounded-full p-2.5 text-slate-500" />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="rounded-2xl border-slate-200 p-1 shadow-lg">
-                            {table_options?.map((option, idx) => (
-                              <DropdownMenuItem
-                                key={idx}
-                                onClick={() =>
-                                  option.type === "delete"
-                                    ? openDeleteDialog(item.id)
-                                    : option?.action?.(item.id)
-                                }
-                                className={`rounded-xl px-3 py-2 ${
-                                  option.type === "delete"
-                                    ? "text-red-600 focus:text-red-600"
-                                    : ""
-                                }`}
-                              >
-                                {option.label}
-                              </DropdownMenuItem>
-                            ))}
+                            {table_options
+                              ?.filter((option) => !option.hidden?.(item))
+                              .map((option, idx) => (
+                                <DropdownMenuItem
+                                  key={idx}
+                                  disabled={option.disabled?.(item)}
+                                  onClick={() =>
+                                    option.type === "delete"
+                                      ? openDeleteDialog(item.id)
+                                      : option?.action?.(item.id, item)
+                                  }
+                                  className={`rounded-xl px-3 py-2 ${
+                                    option.type === "delete"
+                                      ? "text-red-600 focus:text-red-600"
+                                      : ""
+                                  }`}
+                                >
+                                  {option.label}
+                                </DropdownMenuItem>
+                              ))}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       ) : (

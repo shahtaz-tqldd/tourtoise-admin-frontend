@@ -4,10 +4,10 @@ import { Outlet } from "react-router-dom";
 
 const DashboardLayout = () => {
   return (
-    <div className="flex">
+    <div className="flex min-h-screen w-full overflow-x-hidden">
       <SideMenu />
-      <main className="flex-1 w-full bg-primary/10 h-screen p-4">
-        <div className="bg-gray-50 p-8 rounded-2xl h-full custom-scrollbar">
+      <main className="h-screen min-w-0 flex-1 overflow-hidden bg-primary/10 p-4">
+        <div className="h-full min-w-0 overflow-x-hidden rounded-2xl bg-gray-50 p-8 custom-scrollbar">
           <Outlet />
         </div>
       </main>

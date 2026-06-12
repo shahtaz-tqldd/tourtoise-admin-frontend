@@ -53,7 +53,7 @@ const SideMenu = () => {
   ];
 
   return (
-    <div className="max-w-[240px] w-full h-screen bg-primary/10 p-6 pr-2 flex flex-col justify-between">
+    <div className="h-screen w-[240px] shrink-0 bg-primary/10 p-6 pr-2 flex flex-col justify-between">
       <div className="space-y-6">
         <Link to="/" className="flex items-center gap-2">
           <img src="/logo.png" className="h-12 w-12 object-contain" />

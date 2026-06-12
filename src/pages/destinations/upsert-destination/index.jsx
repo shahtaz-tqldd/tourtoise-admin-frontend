@@ -2,10 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
-  ArrowLeft,
   Check,
   ChevronLeft,
-  ChevronRight,
   ImagePlus,
   Loader2,
   Plus,
@@ -157,6 +155,7 @@ const defaultValues = {
   cover_image_file: null,
   gallery_images: null,
   existing_gallery_images: [],
+  removed_gallery_image_ids: [],
   tags: [{ name: "", category: "" }],
   min_stay_days: "",
   max_stay_days: "",
@@ -286,12 +285,22 @@ function normalizeExistingImages(images) {
 
   return images
     .map((image) => ({
-      id: image?.id || image?.image_url || image?.url,
+      id: image?.id,
       url: image?.image_url || image?.url || "",
       caption: image?.caption || "",
       sort_order: image?.sort_order || "",
     }))
     .filter((image) => image.url);
+}
+
+function serializeExistingGalleryImages(images = []) {
+  return images
+    .filter((image) => image.id)
+    .map((image) => ({
+      id: image.id,
+      caption: image.caption || "",
+      sort_order: image.sort_order || "",
+    }));
 }
 
 function appendCollectionCoverFiles(formData, collectionName, items = []) {
@@ -579,6 +588,20 @@ function getChangedDestinationPayload(data, dirtyFields) {
       formData.append("gallery_images", file);
     });
   }
+  if (dirtyFields.existing_gallery_images) {
+    formData.append(
+      "existing_gallery_images",
+      JSON.stringify(
+        serializeExistingGalleryImages(data.existing_gallery_images),
+      ),
+    );
+  }
+  if (dirtyFields.removed_gallery_image_ids) {
+    formData.append(
+      "removed_gallery_image_ids",
+      JSON.stringify(data.removed_gallery_image_ids || []),
+    );
+  }
 
   return formData;
 }
@@ -702,12 +725,6 @@ function StepShell({ title, description, children }) {
       </div>
       {children}
     </section>
-  );
-}
-
-function FormGrid({ children, columns = "lg:grid-cols-3" }) {
-  return (
-    <div className={`grid gap-4 md:grid-cols-2 ${columns}`}>{children}</div>
   );
 }
 
@@ -846,6 +863,8 @@ function MediaUploadPanel({ control, setValue }) {
   const galleryFiles = useWatch({ control, name: "gallery_images" });
   const existingGalleryImages =
     useWatch({ control, name: "existing_gallery_images" }) || [];
+  const removedGalleryImageIds =
+    useWatch({ control, name: "removed_gallery_image_ids" }) || [];
   const coverPreviews = useFilePreviews(coverFiles);
   const galleryPreviews = useFilePreviews(galleryFiles);
   const activeCover = coverPreviews[0]?.url || coverUrl;
@@ -887,6 +906,21 @@ function MediaUploadPanel({ control, setValue }) {
       return itemIndex !== index;
     });
     setValue("gallery_images", nextFiles.length ? nextFiles : null, {
+      shouldDirty: true,
+    });
+  };
+
+  const removeExistingGalleryImage = (index) => {
+    const image = existingGalleryImages[index];
+    const nextImages = existingGalleryImages.filter((_, itemIndex) => {
+      return itemIndex !== index;
+    });
+    const nextRemovedIds = image?.id
+      ? [...new Set([...removedGalleryImageIds, image.id])]
+      : removedGalleryImageIds;
+
+    setValue("existing_gallery_images", nextImages, { shouldDirty: true });
+    setValue("removed_gallery_image_ids", nextRemovedIds, {
       shouldDirty: true,
     });
   };
@@ -968,10 +1002,10 @@ function MediaUploadPanel({ control, setValue }) {
         </div>
 
         <div className="grid grid-cols-3 gap-3">
-          {existingGalleryImages.map((image) => (
+          {existingGalleryImages.map((image, index) => (
             <div
               key={image.id || image.url}
-              className="relative aspect-square overflow-hidden rounded-lg border border-slate-200 bg-white"
+              className="group relative aspect-square overflow-hidden rounded-lg border border-slate-200 bg-white"
             >
               <img
                 src={image.url}
@@ -981,6 +1015,14 @@ function MediaUploadPanel({ control, setValue }) {
               <span className="absolute left-1.5 top-1.5 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-medium text-slate-600 shadow-sm">
                 Existing
               </span>
+              <button
+                type="button"
+                onClick={() => removeExistingGalleryImage(index)}
+                className="absolute right-1.5 top-1.5 flex size-7 items-center justify-center rounded-full bg-white/95 text-slate-700 shadow-sm opacity-0 transition hover:text-red-600 group-hover:opacity-100"
+                aria-label="Remove existing gallery image"
+              >
+                <Trash2 size={14} />
+              </button>
             </div>
           ))}
 
@@ -1558,7 +1600,6 @@ const DestinationUpsertPage = () => {
     handleSubmit,
     reset,
     setValue,
-    trigger,
     formState: { dirtyFields, errors },
   } = useForm({ defaultValues });
 
@@ -1581,19 +1622,6 @@ const DestinationUpsertPage = () => {
 
   const isSaving = isCreateLoading || isUpdateLoading;
   const currentStep = steps[activeStep];
-
-  const goNext = async () => {
-    const stepFields = {
-      basics: ["name", "country", "destination_type", "overview"],
-      planning: [],
-      media: [],
-      attractions: [],
-      activities: [],
-      cuisines: [],
-    };
-    const isValid = await trigger(stepFields[currentStep.id]);
-    if (isValid) setActiveStep((step) => Math.min(step + 1, steps.length - 1));
-  };
 
   const onSubmit = async (data) => {
     try {
@@ -1634,22 +1662,30 @@ const DestinationUpsertPage = () => {
 
   return (
     <section className="min-w-0 space-y-6">
-      <div className="flbx gap-4">
-        <div>
+      <div className="flbx gap-4 sticky">
+        <div className="flx gap-2">
           <Link
             to="/destinations"
-            className="mb-3 inline-flex items-center gap-2 text-sm text-primary"
+            className="h-10 w-10 rounded-full bg-primary/5 hover:bg-primary/10 center text-slate-900 tr"
           >
-            <ArrowLeft size={16} />
-            Destinations
+            <ChevronLeft size={16} />
           </Link>
           <Title variant="lg">
             {isUpdateMode ? "Update Destination" : "Create Destination"}
           </Title>
-          <Text variant="sm" className="mt-1">
-            Build destination content in focused steps instead of one oversized
-            form.
-          </Text>
+        </div>
+
+        <div className="flex gap-3">
+          {!isUpdateMode && (
+            <Button variant="outline" disabled={isSaving}>
+              {isSaving ? (
+                <Loader2 className="animate-spin" size={16} />
+              ) : (
+                <Save size={16} />
+              )}
+              Save as Draft
+            </Button>
+          )}
         </div>
       </div>
       {isFormReady && (
@@ -1658,7 +1694,7 @@ const DestinationUpsertPage = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="min-w-0 space-y-5"
         >
-          <div className="flex min-w-0 items-center justify-between gap-3 rounded-full border border-slate-200 bg-white py-2 px-3">
+          <div className="z-100 sticky -top-8 flex min-w-0 items-center justify-between gap-3 rounded-full border border-slate-200 bg-primary/10 backdrop-blur-xl py-2 px-3">
             <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto">
               {steps.map((step, index) => {
                 const isActive = activeStep === index;
@@ -1670,17 +1706,17 @@ const DestinationUpsertPage = () => {
                     onClick={() => setActiveStep(index)}
                     className={`flex h-11 shrink-0 items-center gap-2 rounded-full pr-4 pl-3 text-sm font-semibold transition ${
                       isActive
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-50"
+                        ? "bg-white text-slate-900"
+                        : "text-slate-700 hover:bg-white/30"
                     }`}
                   >
                     <span
-                      className={`flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${
+                      className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
                         isActive
-                          ? "border-white/50 bg-white/15 text-white"
+                          ? "bg-primary/10 text-primary"
                           : isComplete
-                            ? "border-primary bg-primary text-white"
-                            : "border-slate-200 bg-white text-slate-500"
+                            ? "bg-primary text-white"
+                            : "bg-white/80 text-slate-600"
                       }`}
                     >
                       {isComplete ? <Check size={13} /> : index + 1}
@@ -1701,7 +1737,7 @@ const DestinationUpsertPage = () => {
               ) : (
                 <Save size={16} />
               )}
-              {isUpdateMode ? "Update Destination" : "Create Destination"}
+              {isUpdateMode ? "Update" : "Create"}
             </Button>
           </div>
 
@@ -1978,41 +2014,6 @@ const DestinationUpsertPage = () => {
                 />
               </StepShell>
             )}
-
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setActiveStep((step) => Math.max(step - 1, 0))}
-                disabled={activeStep === 0}
-              >
-                <ChevronLeft size={16} />
-                Previous
-              </Button>
-
-              <div className="flex gap-3">
-                <Link to="/destinations">
-                  <Button type="button" variant="outline">
-                    Cancel
-                  </Button>
-                </Link>
-                {activeStep < steps.length - 1 ? (
-                  <Button type="button" onClick={goNext}>
-                    Next
-                    <ChevronRight size={16} />
-                  </Button>
-                ) : (
-                  <Button type="submit" disabled={isSaving}>
-                    {isSaving ? (
-                      <Loader2 className="animate-spin" size={16} />
-                    ) : (
-                      <Save size={16} />
-                    )}
-                    {isUpdateMode ? "Update Destination" : "Create Destination"}
-                  </Button>
-                )}
-              </div>
-            </div>
           </div>
         </form>
       )}

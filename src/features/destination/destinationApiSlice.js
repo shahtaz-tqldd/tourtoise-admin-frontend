@@ -2,6 +2,7 @@ import { apiSlice } from "../api/apiSlice";
 
 export const destinationApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+    // destinations
     createNewDestination: builder.mutation({
       query: (formData) => {
         return {
@@ -87,10 +88,73 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: ["destination-list"],
     }),
+
+    // attractions
+    attractionList: builder.query({
+      query: ({
+        destination_id,
+        page = 1,
+        page_size = 10,
+        search_query = "",
+      }) => {
+        let url = `/admin/destinations/${destination_id}/attractions/?page=${page}&page_size=${page_size}`;
+        if (search_query) {
+          url += `&search=${search_query}`;
+        }
+        return {
+          url,
+          method: "GET",
+        };
+      },
+      providesTags: ["attraction-list"],
+    }),
+
+    createAttraction: builder.mutation({
+      query: ({ destination_id, formData }) => {
+        return {
+          url: `/admin/destinations/${destination_id}/attractions/`,
+          method: "POST",
+          body: formData,
+        };
+      },
+      invalidatesTags: ["attraction-list"],
+    }),
+
+    attractionDetail: builder.query({
+      query: ({ destination_id, attraction_id }) => {
+        return {
+          url: `/admin/destinations/${destination_id}/attractions/${attraction_id}/`,
+          method: "GET",
+        };
+      },
+      providesTags: ["attraction-list"],
+    }),
+
+    updateAttraction: builder.mutation({
+      query: ({ destination_id, attraction_id, formData }) => {
+        return {
+          url: `/admin/destinations/${destination_id}/attractions/${attraction_id}/`,
+          method: "PATCH",
+          body: formData,
+        };
+      },
+      invalidatesTags: ["attraction-list"],
+    }),
+
+    deleteAttraction: builder.mutation({
+      query: ({ destination_id, attraction_id }) => {
+        return {
+          url: `/admin/destinations/${destination_id}/attractions/${attraction_id}/`,
+          method: "DELETE",
+        };
+      },
+      invalidatesTags: ["attraction-list"],
+    }),
   }),
 });
 
 export const {
+  // destinations
   useCreateNewDestinationMutation,
   useDestinationListQuery,
   useDestinationDetailQuery,
@@ -99,6 +163,11 @@ export const {
   useDownloadTemplateQuery,
   useBulkUploadMutation,
   useScrapDestinationMutation,
-} = destinationApiSlice;
 
-export const useCreateDestinationMutation = useCreateNewDestinationMutation;
+  // attractions
+  useAttractionListQuery,
+  useCreateAttractionMutation,
+  useAttractionDetailQuery,
+  useUpdateAttractionMutation,
+  useDeleteAttractionMutation,
+} = destinationApiSlice;

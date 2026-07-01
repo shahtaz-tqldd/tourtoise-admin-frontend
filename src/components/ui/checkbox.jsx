@@ -1,30 +1,47 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
-import { CheckIcon } from "lucide-react"
+import * as React from "react";
+import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
+import { CheckIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
+import { Controller } from "react-hook-form";
 
-function Checkbox({
-  className,
-  ...props
-}) {
+function Checkbox({ className, ...props }) {
   return (
     <CheckboxPrimitive.Root
       data-slot="checkbox"
       className={cn(
         "peer border-primary/40 dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer",
-        className
+        className,
       )}
-      {...props}>
+      {...props}
+    >
       <CheckboxPrimitive.Indicator
         data-slot="checkbox-indicator"
-        className="grid place-content-center text-current transition-none">
+        className="grid place-content-center text-current transition-none"
+      >
         <CheckIcon className="size-3.5" />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   );
 }
 
-export { Checkbox }
+function CheckboxField({ control, name, label }) {
+  return (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <label className="flex items-center gap-3 text-sm text-slate-700 cursor-pointer select-none">
+          <Checkbox
+            checked={Boolean(field.value)}
+            onCheckedChange={field.onChange}
+          />
+          {label}
+        </label>
+      )}
+    />
+  );
+}
+export { Checkbox, CheckboxField };

@@ -226,6 +226,10 @@ const DestinationsPage = () => {
     navigate(`/destinations/${dest_id}`);
   };
 
+  const handleViewAttractions = (dest_id) => {
+    navigate(`/destinations/${dest_id}/attractions`);
+  };
+
   const handleUpdate = (dest_id) => {
     navigate(`/destinations/update/${dest_id}`);
   };
@@ -233,7 +237,7 @@ const DestinationsPage = () => {
   const handlePublishDestination = async (dest_id) => {
     try {
       const formData = new FormData();
-      formData.append("status", "publish");
+      formData.append("status", "published");
 
       await updateDestination({ destination_id: dest_id, formData }).unwrap();
       toast.success("Destination published successfully");
@@ -371,6 +375,10 @@ const DestinationsPage = () => {
       action: handleUpdate,
     },
     {
+      label: "View Attractions",
+      action: handleViewAttractions,
+    },
+    {
       label: publishLoading ? "Publishing..." : "Publish",
       action: handlePublishDestination,
       hidden: (item) => item.raw_status !== "draft",
@@ -451,7 +459,10 @@ const DestinationsPage = () => {
         <Title variant="lg">Destinations</Title>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button disabled={templateDownloading} className="rounded-full !pl-4">
+            <Button
+              disabled={templateDownloading}
+              className="rounded-full !pl-4"
+            >
               {templateDownloading ? (
                 <Loader2 className="animate-spin" size={16} />
               ) : (

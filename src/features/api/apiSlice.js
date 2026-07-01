@@ -37,7 +37,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
             credentials: "include",
           },
           api,
-          extraOptions
+          extraOptions,
         );
 
         if (refreshResult.data?.success) {
@@ -46,7 +46,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
               accessToken: refreshResult?.data?.data?.accessToken,
               refreshToken: refreshResult?.data?.data?.refreshToken,
               rememberMe,
-            })
+            }),
           );
 
           // Retry the original request with new token
@@ -82,6 +82,7 @@ export const apiSlice = createApi({
     "accommodation-type",
     "transport-type",
     "activity-type",
+    "attraction-list",
   ],
   keepUnusedDataFor: 300, // Don't keep any unused data
   refetchOnMountOrArgChange: false, // Always refetch when component mounts

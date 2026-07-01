@@ -8,6 +8,7 @@ import {
   Settings,
   BaggageClaim,
   MessageSquareDot,
+  FileText,
 } from "lucide-react";
 
 const SideMenu = () => {
@@ -40,9 +41,9 @@ const SideMenu = () => {
     },
     {
       id: 5,
-      label: "Conversations",
-      link: "/conversations",
-      icon: <MessageSquareDot size={18} />,
+      label: "Travel Journals",
+      link: "/travel-journals",
+      icon: <FileText size={18} />,
     },
     {
       id: 10,
@@ -58,8 +59,8 @@ const SideMenu = () => {
         <Link to="/" className="flex items-center gap-2">
           <img src="/logo.png" className="h-12 w-12 object-contain" />
           <div>
-            <h2 className="text-primary font-medium">tourtoise</h2>
-            <p className="text-xs text-gray-500">Platform Management</p>
+            <h2 className="text-primary font-medium text-lg">tourtoise</h2>
+            <p className="text-xs text-gray-500">Admin Panel</p>
           </div>
         </Link>
         <ul className="space-y-1 w-full">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Check, ChevronLeft, Loader2, Save } from "lucide-react";
@@ -248,6 +248,10 @@ function getOptionCandidateValues(value) {
     value.label,
     value.name,
     value.title,
+    value.type,
+    value.country,
+    value.country_name,
+    value.destination_type,
     value.code,
     value.slug,
   ].filter((item) => item !== null && item !== undefined && item !== "");
@@ -448,16 +452,10 @@ function hasFormDataEntries(formData) {
   return !formData.entries().next().done;
 }
 
-const DestinationUpsertPage = () => {
+const DestinationUpsertForm = ({ destination_id, initialValues, isUpdateMode }) => {
   const navigate = useNavigate();
-  const { destination_id } = useParams();
-  const isUpdateMode = Boolean(destination_id);
   const [activeStep, setActiveStep] = useState(0);
 
-  const { data: detailData, isFetching: isDetailFetching } =
-    useDestinationDetailQuery(destination_id, {
-      skip: !isUpdateMode,
-    });
   const [createDestination, { isLoading: isCreateLoading }] =
     useCreateNewDestinationMutation();
   const [updateDestination, { isLoading: isUpdateLoading }] =
@@ -466,27 +464,17 @@ const DestinationUpsertPage = () => {
   const {
     control,
     handleSubmit,
-    reset,
     setValue,
     formState: { dirtyFields, errors },
-  } = useForm({ defaultValues });
+  } = useForm({ defaultValues: initialValues });
 
   const tags = useFieldArray({ control, name: "tags" });
   const attractions = useFieldArray({ control, name: "attractions" });
   const activities = useFieldArray({ control, name: "activities" });
   const cuisines = useFieldArray({ control, name: "cuisines" });
 
-  useEffect(() => {
-    const destination = detailData?.data || detailData;
-    if (isUpdateMode && destination) {
-      const formValues = mapDestinationToForm(destination);
-      reset(formValues);
-    }
-  }, [detailData, isUpdateMode, reset, setValue]);
-
   const isSaving = isCreateLoading || isUpdateLoading;
   const currentStep = steps[activeStep];
-  const isFormReady = !isUpdateMode || Boolean(detailData);
 
   const onSubmit = async (data) => {
     try {
@@ -516,15 +504,6 @@ const DestinationUpsertPage = () => {
     }
   };
 
-  if (isUpdateMode && isDetailFetching) {
-    return (
-      <div className="center min-h-[420px] text-primary">
-        <Loader2 className="mr-2 animate-spin" size={22} />
-        Loading destination...
-      </div>
-    );
-  }
-
   return (
     <section className="min-w-0 space-y-6">
       <div className="flbx gap-4 sticky">
@@ -553,12 +532,11 @@ const DestinationUpsertPage = () => {
           )}
         </div>
       </div>
-      {isFormReady && (
-        <form
-          id="destination-form"
-          onSubmit={handleSubmit(onSubmit)}
-          className="min-w-0 space-y-5"
-        >
+      <form
+        id="destination-form"
+        onSubmit={handleSubmit(onSubmit)}
+        className="min-w-0 space-y-5"
+      >
           <div className="z-100 sticky -top-8 flex min-w-0 items-center justify-between gap-3 rounded-full border border-slate-200 bg-primary/10 backdrop-blur-xl py-2 px-3">
             <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto">
               {steps.map((step, index) => {
@@ -655,9 +633,39 @@ const DestinationUpsertPage = () => {
               />
             )}
           </div>
-        </form>
-      )}
+      </form>
     </section>
+  );
+};
+
+const DestinationUpsertPage = () => {
+  const { destination_id } = useParams();
+  const isUpdateMode = Boolean(destination_id);
+
+  const { data: detailData } = useDestinationDetailQuery(destination_id, {
+    skip: !isUpdateMode,
+  });
+  const destination = detailData?.data || detailData;
+
+  if (isUpdateMode && !destination) {
+    return (
+      <div className="center min-h-[420px] text-primary">
+        <Loader2 className="mr-2 animate-spin" size={22} />
+        Loading destination...
+      </div>
+    );
+  }
+
+  const initialValues =
+    isUpdateMode && destination ? mapDestinationToForm(destination) : defaultValues;
+
+  return (
+    <DestinationUpsertForm
+      key={isUpdateMode ? destination.id : "create"}
+      destination_id={destination_id}
+      initialValues={initialValues}
+      isUpdateMode={isUpdateMode}
+    />
   );
 };
 

@@ -245,14 +245,21 @@ function SelectField({
           optionItems.find(
             (option) =>
               toComparableOptionValue(option.label) === comparableValue,
-          );
+          ) ||
+          (rawValue
+            ? {
+                value: rawValue,
+                label: rawValue.replaceAll("_", " "),
+                icon: null,
+              }
+            : null);
 
         return (
           <div className={className}>
             <FloatingSelect
               label={label}
               placeholder={`Select ${label.toLowerCase()}`}
-              value={selectedOption?.value}
+              value={selectedOption?.value || ""}
               displayValue={selectedOption?.label}
               onValueChange={(value) => {
                 field.onChange(value);

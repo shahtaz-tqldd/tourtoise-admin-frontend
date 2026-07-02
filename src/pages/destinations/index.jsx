@@ -229,6 +229,12 @@ const DestinationsPage = () => {
   const handleViewAttractions = (dest_id) => {
     navigate(`/destinations/${dest_id}/attractions`);
   };
+  const handleViewActivities = (dest_id) => {
+    navigate(`/destinations/${dest_id}/activities`);
+  };
+  const handleViewCuisines = (dest_id) => {
+    navigate(`/destinations/${dest_id}/cuisines`);
+  };
 
   const handleUpdate = (dest_id) => {
     navigate(`/destinations/update/${dest_id}`);
@@ -377,6 +383,14 @@ const DestinationsPage = () => {
     {
       label: "View Attractions",
       action: handleViewAttractions,
+    },
+    {
+      label: "View Activities",
+      action: handleViewActivities,
+    },
+    {
+      label: "View Cuisines",
+      action: handleViewCuisines,
     },
     {
       label: publishLoading ? "Publishing..." : "Publish",

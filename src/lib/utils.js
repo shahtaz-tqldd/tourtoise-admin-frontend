@@ -6,5 +6,5 @@ export function cn(...inputs) {
 }
 
 export function toComparableOptionValue(value) {
-  return String(value).trim().toLowerCase().replaceAll("-", "_");
+  return String(value).trim().toLowerCase().replace(/[\s-]+/g, "_");
 }

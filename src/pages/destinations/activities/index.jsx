@@ -1,15 +1,15 @@
 import ReusableTable from "@/components/table";
 import { TableProfile } from "@/components/ui/table";
 import {
-  useAttractionListQuery,
-  useBulkAttractionUploadMutation,
-  useDeleteAttractionMutation,
-  useDownloadAttractionTemplateQuery,
+  useBulkActivityUploadMutation,
+  useActivityListQuery,
+  useDeleteActivityMutation,
+  useDownloadActivityTemplateQuery,
 } from "@/features/destination/destinationApiSlice";
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import AttractionDetailsDialog from "./attraction-details-dialog";
+import ActivityDetailsDialog from "./activity-details-dialog";
 import DestinationContentActions from "../components/destination-content-actions";
 import DestinationContentHeader from "../components/destination-content-header";
 
@@ -27,18 +27,18 @@ const formatDuration = (hours) => {
   return `${days} day${days > 1 ? "s" : ""} ${remainingHours} hr`;
 };
 
-const AttractionListPage = () => {
+const ActivityListPage = () => {
   const navigate = useNavigate();
   const { destination_id } = useParams();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [downloadRequested, setDownloadRequested] = useState(false);
-  const [selectedAttraction, setSelectedAttraction] = useState(null);
+  const [selectedActivity, setSelectedActivity] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
-  const attractionColumns = [
+  const activityColumns = [
     { header: "Name", accessorKey: "name" },
-    { header: "Type", accessorKey: "attraction_type" },
+    { header: "Type", accessorKey: "activity_type" },
     { header: "Budget", accessorKey: "budget_tier" },
     { header: "Duration", accessorKey: "avg_duration_hours" },
     { header: "Best Time", accessorKey: "best_time_of_day" },
@@ -46,49 +46,47 @@ const AttractionListPage = () => {
     { header: "Action", accessorKey: "action" },
   ];
 
-  const { data: attractionData, isLoading } = useAttractionListQuery({
+  const { data: activityData, isLoading } = useActivityListQuery({
     destination_id,
     page: page,
     page_size: pageSize,
   });
-  const [deleteAttraction, { isLoading: deleteLoading }] =
-    useDeleteAttractionMutation();
+  const [deleteActivity, { isLoading: deleteLoading }] =
+    useDeleteActivityMutation();
   const {
     data: templateData,
     isFetching: templateDownloading,
     error: templateError,
     refetch: refetchTemplate,
-  } = useDownloadAttractionTemplateQuery(
+  } = useDownloadActivityTemplateQuery(
     { destination_id },
     { skip: !downloadRequested },
   );
   const [bulkUpload, { isLoading: bulkUploading }] =
-    useBulkAttractionUploadMutation();
+    useBulkActivityUploadMutation();
 
-  const handleUpdate = (attractionId) => {
-    navigate(
-      `/destinations/${destination_id}/attractions/update/${attractionId}`,
-    );
+  const handleUpdate = (activityId) => {
+    navigate(`/destinations/${destination_id}/activities/update/${activityId}`);
   };
 
   const handleView = (_, item) => {
-    setSelectedAttraction(item.raw_attraction || item);
+    setSelectedActivity(item.raw_activity || item);
     setDetailsOpen(true);
   };
 
-  const handleDelete = async (attractionId) => {
+  const handleDelete = async (activityId) => {
     try {
-      await deleteAttraction({
+      await deleteActivity({
         destination_id,
-        attraction_id: attractionId,
+        activity_id: activityId,
       }).unwrap();
-      toast.success("Attraction deleted successfully");
+      toast.success("Activity deleted successfully");
     } catch (error) {
       const message =
         error?.data?.message ||
         error?.data?.error?.[0] ||
         error?.data?.detail ||
-        "Attraction could not be deleted";
+        "Activity could not be deleted";
       toast.error(message);
     }
   };
@@ -108,10 +106,10 @@ const AttractionListPage = () => {
     },
   ];
 
-  const attractions =
-    attractionData?.data?.map((item) => ({
+  const activities =
+    activityData?.data?.map((item) => ({
       ...item,
-      raw_attraction: item,
+      raw_activity: item,
       name: (
         <TableProfile
           name={item.name}
@@ -120,8 +118,8 @@ const AttractionListPage = () => {
           non_rounded
         />
       ),
-      attraction_type: (
-        <span className="capitalize">{formatLabel(item.attraction_type)}</span>
+      activity_type: (
+        <span className="capitalize">{formatLabel(item.activity_type)}</span>
       ),
       budget_tier: (
         <span className="capitalize">{formatLabel(item.budget_tier)}</span>
@@ -133,18 +131,18 @@ const AttractionListPage = () => {
       is_featured: item.is_featured ? "Yes" : "No",
     })) || [];
   const total_item =
-    attractionData?.meta?.count || attractionData?.meta?.total || 0;
+    activityData?.meta?.count || activityData?.meta?.total || 0;
 
   return (
     <section className="space-y-8">
       <DestinationContentHeader
         destinationId={destination_id}
-        title="Attractions"
+        title="Activities"
         action={
           <DestinationContentActions
-            label="Attraction"
-            addPath={`/destinations/${destination_id}/attractions/new-attraction`}
-            templateKey="attractions"
+            label="Activity"
+            addPath={`/destinations/${destination_id}/activities/new-activity`}
+            templateKey="activities"
             templateData={templateData}
             templateError={templateError}
             templateDownloading={templateDownloading}
@@ -159,8 +157,8 @@ const AttractionListPage = () => {
       />
 
       <ReusableTable
-        data={attractions}
-        columns={attractionColumns}
+        data={activities}
+        columns={activityColumns}
         isLoading={isLoading}
         page={page}
         setPage={setPage}
@@ -172,13 +170,13 @@ const AttractionListPage = () => {
         deleteLoading={deleteLoading}
         className="mt-4"
       />
-      <AttractionDetailsDialog
+      <ActivityDetailsDialog
         open={detailsOpen}
         onOpenChange={setDetailsOpen}
-        attraction={selectedAttraction}
+        activity={selectedActivity}
       />
     </section>
   );
 };
 
-export default AttractionListPage;
+export default ActivityListPage;

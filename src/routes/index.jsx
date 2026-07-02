@@ -13,6 +13,9 @@ import AttractionListPage from "@/pages/destinations/attractions";
 import UpsertAttractionPage from "@/pages/destinations/attractions/upsert-attraction";
 import ActivityListPage from "@/pages/destinations/activities";
 import CuisineListPage from "@/pages/destinations/cuisines";
+import TripListPage from "@/pages/trips";
+import JournalListPage from "@/pages/journals";
+import AccountSettingsPage from "@/pages/auth/account-settings";
 
 export const routes = createBrowserRouter([
   {
@@ -64,8 +67,20 @@ export const routes = createBrowserRouter([
         element: <UpsertAttractionPage />,
       },
       {
+        path: "/trips",
+        element: <TripListPage />,
+      },
+      {
+        path: "/travel-journals",
+        element: <JournalListPage />,
+      },
+      {
         path: "/users",
         element: <UserPage />,
+      },
+      {
+        path: "/settings",
+        element: <AccountSettingsPage />,
       },
     ],
   },

@@ -6,9 +6,8 @@ import {
   Users,
   PlaneTakeoff,
   Settings,
-  BaggageClaim,
-  MessageSquareDot,
   FileText,
+  CalendarDays,
 } from "lucide-react";
 
 const SideMenu = () => {
@@ -37,7 +36,7 @@ const SideMenu = () => {
       id: 4,
       label: "Trips",
       link: "/trips",
-      icon: <BaggageClaim size={18} />,
+      icon: <CalendarDays size={18} />,
     },
     {
       id: 5,
@@ -91,16 +90,16 @@ const SideMenu = () => {
         </ul>
       </div>
 
-      <div className="bg-primary/10 p-3 rounded-lg flex items-center gap-2">
+      <div className="border border-primary/20 p-3 rounded-xl flex items-center gap-2">
         <img
-          src="https://media.licdn.com/dms/image/v2/D5603AQFNKfEBpcynJw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1722787149506?e=2147483647&v=beta&t=snYVYV9rYKnqQVnkWUAjtnQO1n_d6auaquNfuSvT3fg"
+          src="https://thumbs.dreamstime.com/b/eps-440991551.jpg"
           className="h-9 w-9 rounded-full"
         />
         <div className="flex-1">
           <h2 className="text-sm text-emerald-800 font-medium">
-            Shahtaz Rahman
+            Tourtoise Admin
           </h2>
-          <p className="text-xs text-primary">Admin Manager</p>
+          <p className="text-xs text-slate-400">Admin Manager</p>
         </div>
       </div>
     </div>

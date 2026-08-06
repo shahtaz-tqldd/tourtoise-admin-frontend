@@ -90,10 +90,10 @@ const SideMenu = () => {
         </ul>
       </div>
 
-      <div className="border border-primary/20 p-3 rounded-xl flex items-center gap-2">
+      <div className="border border-primary/20 p-3 bg-white rounded-xl flex items-center gap-2">
         <img
-          src="https://thumbs.dreamstime.com/b/eps-440991551.jpg"
-          className="h-9 w-9 rounded-full"
+          src="https://img.magnific.com/free-vector/cute-turtle-swimming-cartoon-vector-icon-illustration-animal-nature-icon-concept-isolated-premium_138676-6686.jpg?semt=ais_test_b&w=740&q=80"
+          className="size-9 rounded-full object-cover"
         />
         <div className="flex-1">
           <h2 className="text-sm text-emerald-800 font-medium">

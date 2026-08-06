@@ -1,23 +1,23 @@
 import React from "react";
 import { Text, Title } from "@/components/ui/typography";
 import OverviewStats from "./components/stats";
-import { OVERVIEW_STATS } from "./demo_data";
+import UserGrowth from "./components/user-growth";
 
 const Overview = () => {
-  const overview_stats = OVERVIEW_STATS;
-
   return (
-    <div className="space-y-12">
+    <div>
       {/* Page Title */}
       <div>
         <Title variant="lg">Overview</Title>
         <Text className="mt-2">
-          High-level summary of store performance, customer activity, and
-          important metrics.
+          High-level summary of user growth, user activity, and important
+          metrics.
         </Text>
       </div>
-
-      <OverviewStats stats={overview_stats} />
+      <div className="space-y-5 mt-10">
+        <OverviewStats />
+        <UserGrowth />
+      </div>
     </div>
   );
 };

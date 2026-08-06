@@ -47,7 +47,7 @@ const DestinationContentHeader = ({ destinationId, title, action }) => {
             to={`/destinations/${destinationId}/${tab.to}`}
             className={({ isActive }) =>
               cn(
-                "inline-flex h-10 items-center border-b-2 border-transparent px-1 pb-3 text-sm font-medium text-slate-600 transition-colors hover:text-primary",
+                "inline-flex h-10 items-center border-b-2 border-transparent px-2 pb-2 text-sm font-medium text-slate-600 transition-colors hover:text-primary",
                 isActive && "border-primary text-primary",
               )
             }

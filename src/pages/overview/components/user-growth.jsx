@@ -1,5 +1,11 @@
 import Card from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Text, Title } from "@/components/ui/typography";
 import { useUserGrowthQuery } from "@/features/analytics/analyticsApiSlice";
 import moment from "moment";
@@ -15,13 +21,23 @@ const formatGrowthLabel = (value, granularity, label) => {
 
 const formatNumber = (value) => new Intl.NumberFormat().format(value || 0);
 
+const MONTH_OPTIONS = Array.from({ length: 12 }, (_, index) => {
+  const month = moment().subtract(index, "months");
+  return {
+    value: month.format("YYYY-MM"),
+    label: month.format("MMMM YYYY"),
+  };
+});
+
 const UserGrowth = () => {
-  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("last-12-months");
   const {
     data: growthData,
     isFetching: growthLoading,
     isError: growthError,
-  } = useUserGrowthQuery({ month: selectedMonth || undefined });
+  } = useUserGrowthQuery({
+    month: selectedMonth === "last-12-months" ? undefined : selectedMonth,
+  });
 
   const growthResults = growthData?.data?.points || [];
   const granularity = growthData?.data?.granularity || "month";
@@ -39,28 +55,22 @@ const UserGrowth = () => {
             {formatNumber(totalGrowth)} users joined in the selected window.
           </Text>
         </div>
-        <div className="flex items-center gap-2">
-          <label htmlFor="user-growth-month" className="sr-only">
-            Filter user growth by month
-          </label>
-          <Input
-            id="user-growth-month"
-            type="month"
-            value={selectedMonth}
-            onChange={(event) => setSelectedMonth(event.target.value)}
-            className="w-auto bg-white"
+        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+          <SelectTrigger
+            className="!h-11 w-[156px] rounded-xl border-slate-200 bg-white px-3 shadow-none"
             aria-label="Filter user growth by month"
-          />
-          {selectedMonth ? (
-            <button
-              type="button"
-              className="text-sm font-semibold text-primary hover:underline"
-              onClick={() => setSelectedMonth("")}
-            >
-              Clear
-            </button>
-          ) : null}
-        </div>
+          >
+            <SelectValue placeholder="Last 12 Months" />
+          </SelectTrigger>
+          <SelectContent align="end" className="rounded-xl border-slate-200">
+            <SelectItem value="last-12-months">Last 12 Months</SelectItem>
+            {MONTH_OPTIONS.map((month) => (
+              <SelectItem key={month.value} value={month.value}>
+                {month.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <UserGrowthChart

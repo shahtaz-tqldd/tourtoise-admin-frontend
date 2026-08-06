@@ -9,9 +9,14 @@ import {
   FileText,
   CalendarDays,
 } from "lucide-react";
+import useAuth from "@/hooks/useAuth";
+import { getCloudinaryPreviewUrl } from "@/lib/image";
 
 const SideMenu = () => {
   const location = useLocation();
+  const { user } = useAuth();
+  const fullName = user?.name;
+  const avatar = user?.avatar_url || "";
 
   const navItems = [
     {
@@ -40,12 +45,6 @@ const SideMenu = () => {
     },
     {
       id: 5,
-      label: "Travel Journals",
-      link: "/travel-journals",
-      icon: <FileText size={18} />,
-    },
-    {
-      id: 10,
       label: "Account Settings",
       link: "/settings",
       icon: <Settings size={18} />,
@@ -90,16 +89,14 @@ const SideMenu = () => {
         </ul>
       </div>
 
-      <div className="border border-primary/20 p-3 bg-white rounded-xl flex items-center gap-2">
+      <div className="border border-primary/20 p-3 bg-white/50 rounded-xl flex items-center gap-2">
         <img
-          src="https://img.magnific.com/free-vector/cute-turtle-swimming-cartoon-vector-icon-illustration-animal-nature-icon-concept-isolated-premium_138676-6686.jpg?semt=ais_test_b&w=740&q=80"
+          src={getCloudinaryPreviewUrl(avatar, 120)}
           className="size-9 rounded-full object-cover"
         />
         <div className="flex-1">
-          <h2 className="text-sm text-emerald-800 font-medium">
-            Tourtoise Admin
-          </h2>
-          <p className="text-xs text-slate-400">Admin Manager</p>
+          <h2 className="text-sm text-slate-800 font-medium">{fullName}</h2>
+          <p className="text-xs text-slate-400">Super Admin</p>
         </div>
       </div>
     </div>

@@ -26,19 +26,37 @@ export const authApiSlice = apiSlice.injectEndpoints({
     changePassword: builder.mutation({
       query: (payload) => {
         return {
-          url: `/admin/accounts/change-password`,
+          url: `/admin/accounts/update-password/`,
           method: "PATCH",
           body: payload,
         };
       },
     }),
 
-    userAccountList: builder.query({
-      query: ({ page, page_size, search_str }) => {
+    updateAdminInfo: builder.mutation({
+      query: (payload) => {
         return {
-          url: `/admin/accounts/list/?page=${page}&page_size=${page_size}&search_str=${
-            search_str || ""
-          }`,
+          url: `/admin/accounts/update-info/`,
+          method: "PATCH",
+          body: payload,
+        };
+      },
+      invalidatesTags: ["my-profile"],
+    }),
+
+    userAccountList: builder.query({
+      query: ({ page = 1, page_size = 10, search = "", status = "" }) => {
+        const params = new URLSearchParams({ page, page_size });
+
+        if (search) {
+          params.set("search", search);
+        }
+        if (status) {
+          params.set("status", status);
+        }
+
+        return {
+          url: `/admin/accounts/list/?${params.toString()}`,
           method: "GET",
         };
       },
@@ -51,4 +69,5 @@ export const {
   useSelfDetailsQuery,
   useChangePasswordMutation,
   useUserAccountListQuery,
+  useUpdateAdminInfoMutation,
 } = authApiSlice;

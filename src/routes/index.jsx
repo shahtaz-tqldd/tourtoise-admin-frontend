@@ -15,7 +15,7 @@ import ActivityListPage from "@/pages/destinations/activities";
 import CuisineListPage from "@/pages/destinations/cuisines";
 import TripListPage from "@/pages/trips";
 import JournalListPage from "@/pages/journals";
-import AccountSettingsPage from "@/pages/auth/account-settings";
+import SettingsPage from "@/pages/settings";
 
 export const routes = createBrowserRouter([
   {
@@ -80,7 +80,7 @@ export const routes = createBrowserRouter([
       },
       {
         path: "/settings",
-        element: <AccountSettingsPage />,
+        element: <SettingsPage />,
       },
     ],
   },

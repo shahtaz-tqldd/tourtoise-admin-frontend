@@ -121,7 +121,7 @@ function TableProfile({
           <img
             src={imageUrl}
             alt={name}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover bg-primary/10"
             loading="lazy"
             decoding="async"
             fetchPriority="low"
@@ -134,12 +134,12 @@ function TableProfile({
             avatarClassName,
           )}
         >
-          {name.charAt(0).toUpperCase()}
+          {name?.charAt(0).toUpperCase()}
         </div>
       )}
       <div className="min-w-0 flex-1">
         <Title variant="xs">{name}</Title>
-        <Text variant="sm">{email}</Text>
+        <Text variant="xs">{email}</Text>
       </div>
     </div>
   );

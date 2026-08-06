@@ -3,13 +3,23 @@ import { apiSlice } from "../api/apiSlice";
 export const tripApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     tripList: builder.query({
-      query: ({ page = 1, page_size = 10, search_query = "" }) => {
-        let url = `/admin/trips/list?page=${page}&page_size=${page_size}`;
+      query: ({
+        page = 1,
+        page_size = 10,
+        search_query = "",
+        country = "",
+      }) => {
+        const params = new URLSearchParams({ page, page_size });
+
         if (search_query) {
-          url += `&search=${search_query}`;
+          params.set("search", search_query);
         }
+        if (country) {
+          params.set("country", country);
+        }
+
         return {
-          url,
+          url: `/admin/trips/list?${params.toString()}`,
           method: "GET",
         };
       },

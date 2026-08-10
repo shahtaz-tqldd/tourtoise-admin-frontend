@@ -57,6 +57,7 @@ const defaultValues = {
   getting_around: "",
   visa_notes: "",
   notes: "",
+  picking_reasons: "",
   status: "draft",
   attractions: [{ ...EMPTY_ATTRACTION }],
   activities: [{ ...EMPTY_ACTIVITY }],
@@ -294,6 +295,7 @@ function mapDestinationToForm(destination) {
     local_languages: joinList(destination?.local_languages),
     best_travel_months: normalizeMonths(destination?.best_travel_months),
     notes: joinList(destination?.notes),
+    picking_reasons: joinList(destination?.picking_reasons),
     destination_type: normalizeOptionValue(
       destination?.destination_type,
       DESTINATION_TYPES,
@@ -336,6 +338,7 @@ function getDestinationPayload(data) {
     JSON.stringify(normalizeMonths(data.best_travel_months)),
   );
   formData.append("notes", JSON.stringify(splitList(data.notes)));
+  formData.append("picking_reasons", JSON.stringify(splitList(data.picking_reasons)));
   formData.append(
     "attractions",
     JSON.stringify(getCollectionPayload(data.attractions)),
@@ -396,6 +399,9 @@ function getChangedDestinationPayload(data, dirtyFields) {
   }
   if (dirtyFields.notes) {
     formData.append("notes", JSON.stringify(splitList(data.notes)));
+  }
+  if (dirtyFields.picking_reasons) {
+    formData.append("picking_reasons", JSON.stringify(splitList(data.picking_reasons)));
   }
   if (dirtyFields.attractions) {
     formData.append(

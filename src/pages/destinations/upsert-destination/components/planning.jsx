@@ -100,6 +100,20 @@ const PlanningInfo = ({ control, errors }) => {
             )}
           />
           <Controller
+            name="picking_reasons"
+            control={control}
+            error={errors.picking_reasons?.message}
+            render={({ field }) => (
+              <FloatingTextarea
+                {...field}
+                label="Picking Reasons"
+                rows={4}
+                placeholder="One reason per line"
+                className="md:col-span-2"
+              />
+            )}
+          />
+          <Controller
             name="notes"
             control={control}
             error={errors.notes?.message}

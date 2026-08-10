@@ -28,6 +28,7 @@ import {
   useScrapDestinationMutation,
   useUpdateDestinationMutation,
 } from "@/features/destination/destinationApiSlice";
+import { formatMonths } from "@/lib/date-time";
 import {
   ChevronDown,
   Download,
@@ -42,21 +43,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
-
-const monthLabels = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
 
 const DestinationsPage = () => {
   const navigate = useNavigate();
@@ -433,10 +419,7 @@ const DestinationsPage = () => {
         </span>
       ),
       best_time: item.best_travel_months?.length
-        ? item.best_travel_months
-            .map((month) => monthLabels[Number(month) - 1])
-            .filter(Boolean)
-            .join(", ")
+        ? formatMonths(item.best_travel_months)
         : "N/A",
       status: <StatusBadge status={item.status || "draft"} />,
       updated_at: item.updated_at

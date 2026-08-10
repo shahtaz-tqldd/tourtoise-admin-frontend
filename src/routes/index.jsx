@@ -14,8 +14,9 @@ import UpsertAttractionPage from "@/pages/destinations/attractions/upsert-attrac
 import ActivityListPage from "@/pages/destinations/activities";
 import CuisineListPage from "@/pages/destinations/cuisines";
 import TripListPage from "@/pages/trips";
-import JournalListPage from "@/pages/journals";
 import SettingsPage from "@/pages/settings";
+import CreditRequestPage from "@/pages/credit-request";
+import ReportPage from "@/pages/reports";
 
 export const routes = createBrowserRouter([
   {
@@ -71,12 +72,16 @@ export const routes = createBrowserRouter([
         element: <TripListPage />,
       },
       {
-        path: "/travel-journals",
-        element: <JournalListPage />,
-      },
-      {
         path: "/users",
         element: <UserPage />,
+      },
+      {
+        path: "/credit-requests",
+        element: <CreditRequestPage />,
+      },
+      {
+        path: "/reported-content",
+        element: <ReportPage />,
       },
       {
         path: "/settings",

@@ -1,55 +1,14 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-
-import {
-  LayoutDashboard,
-  Users,
-  PlaneTakeoff,
-  Settings,
-  FileText,
-  CalendarDays,
-} from "lucide-react";
 import useAuth from "@/hooks/useAuth";
 import { getCloudinaryPreviewUrl } from "@/lib/image";
+import { NAVMENU_ITEMS } from "./constants";
 
 const SideMenu = () => {
   const location = useLocation();
   const { user } = useAuth();
   const fullName = user?.name;
   const avatar = user?.avatar_url || "";
-
-  const navItems = [
-    {
-      id: 1,
-      label: "Overview",
-      link: "/",
-      icon: <LayoutDashboard size={18} />,
-    },
-    {
-      id: 2,
-      label: "Users",
-      link: "/users",
-      icon: <Users size={18} />,
-    },
-    {
-      id: 3,
-      label: "Destinations",
-      link: "/destinations",
-      icon: <PlaneTakeoff size={18} />,
-    },
-    {
-      id: 4,
-      label: "Trips",
-      link: "/trips",
-      icon: <CalendarDays size={18} />,
-    },
-    {
-      id: 5,
-      label: "Account Settings",
-      link: "/settings",
-      icon: <Settings size={18} />,
-    },
-  ];
 
   return (
     <div className="h-screen w-[240px] shrink-0 bg-primary/10 p-6 pr-2 flex flex-col justify-between">
@@ -62,7 +21,7 @@ const SideMenu = () => {
           </div>
         </Link>
         <ul className="space-y-1 w-full">
-          {navItems.map((item) => {
+          {NAVMENU_ITEMS.map((item) => {
             const isActive =
               item.link === "/"
                 ? location.pathname === item.link

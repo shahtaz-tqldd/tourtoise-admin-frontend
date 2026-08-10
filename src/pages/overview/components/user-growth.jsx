@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/select";
 import { Text, Title } from "@/components/ui/typography";
 import { useUserGrowthQuery } from "@/features/analytics/analyticsApiSlice";
+import { cn } from "@/lib/utils";
 import moment from "moment";
 
 import React, { useEffect, useState } from "react";
@@ -29,7 +30,7 @@ const MONTH_OPTIONS = Array.from({ length: 12 }, (_, index) => {
   };
 });
 
-const UserGrowth = () => {
+const UserGrowth = ({ className }) => {
   const [selectedMonth, setSelectedMonth] = useState("last-12-months");
   const {
     data: growthData,
@@ -47,7 +48,7 @@ const UserGrowth = () => {
   );
 
   return (
-    <Card className="min-w-0 w-full max-w-full md:col-span-2">
+    <Card className={cn("min-w-0 w-full max-w-full flex flex-col justify-between", className)}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Title variant="md">User Growth</Title>
@@ -133,7 +134,7 @@ const UserGrowthChart = ({ data, granularity, isLoading, isError }) => {
 
   if (isError) {
     return (
-      <div className="mt-5 flex h-[260px] items-center justify-center rounded-2xl border border-red-100 bg-red-50 text-sm font-semibold text-red-700">
+      <div className="mt-5 flex h-[300px] items-center justify-center rounded-2xl border border-red-100 bg-red-50 text-sm font-semibold text-red-700">
         Unable to load user growth data.
       </div>
     );
@@ -141,7 +142,7 @@ const UserGrowthChart = ({ data, granularity, isLoading, isError }) => {
 
   if (!chartPoints.length) {
     return (
-      <div className="mt-5 flex h-[260px] items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-sm font-semibold text-slate-500">
+      <div className="mt-5 flex h-[300px] items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-sm font-semibold text-slate-500">
         No user growth data available.
       </div>
     );
@@ -154,7 +155,7 @@ const UserGrowthChart = ({ data, granularity, isLoading, isError }) => {
     >
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="block h-[300px] w-full max-w-full"
+        className="block h-[360px] w-full max-w-full"
       >
         <defs>
           <linearGradient id="user-growth-fill" x1="0" x2="0" y1="0" y2="1">

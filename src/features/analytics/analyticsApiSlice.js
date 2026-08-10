@@ -21,7 +21,21 @@ export const analyticsApiSlice = apiSlice.injectEndpoints({
         };
       },
     }),
+
+    aiUsage: builder.query({
+      query: ({ startDate, endDate }) => {
+        return {
+          url: `/admin/analytics/ai-usage`,
+          method: "GET",
+          params: {
+            ...(startDate ? { start_date: startDate } : {}),
+            ...(endDate ? { end_date: endDate } : {}),
+          },
+        };
+      },
+    }),
   }),
 });
 
-export const { useUserGrowthQuery, useOverviewQuery } = analyticsApiSlice;
+export const { useUserGrowthQuery, useOverviewQuery, useAiUsageQuery } =
+  analyticsApiSlice;

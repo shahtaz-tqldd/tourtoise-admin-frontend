@@ -14,8 +14,11 @@ const StatusBadge = ({ status }) => {
     draft: "bg-gray-50 text-gray-600 ring-gray-500/20",
     cancelled: "bg-slate-100 text-slate-600 ring-slate-500/20",
 
+    complete: "bg-primary/10 text-primary ring-primary/20",
+
     verified: "bg-blue-600/10 text-blue-600 ring-blue-600/10",
     unverified: "bg-gray-50 text-gray-600 ring-gray-500/20",
+    incomplete: "bg-red-100 text-red-500 ring-red-500/10",
 
     active: "bg-primary/10 text-primary ring-primary/20",
     premium: "bg-purple-700 text-white ring-purple-700/20",

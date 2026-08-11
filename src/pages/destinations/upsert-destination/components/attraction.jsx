@@ -1,5 +1,5 @@
 import React from "react";
-import { Controller } from "react-hook-form";
+import { Controller, useFieldArray } from "react-hook-form";
 
 // components
 import { Button } from "@/components/ui/button";
@@ -15,11 +15,68 @@ import {
   ATTRACTION_TYPES,
   BUDGET_TIERS,
   EMPTY_ATTRACTION,
+  TAG_CATEGORIES,
   TIME_OF_DAY_OPTIONS,
 } from "../constants";
 
 // icons
-import { Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
+
+function AttractionTags({ control, attractionIndex }) {
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: `attractions.${attractionIndex}.tags`,
+  });
+
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <p className="text-sm font-semibold text-slate-800">Tags</p>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => append({ name: "", category: "" })}
+        >
+          <Plus size={15} />
+          Add Tag
+        </Button>
+      </div>
+      <div className="space-y-3">
+        {fields.map((tag, tagIndex) => (
+          <div
+            key={tag.id}
+            className="grid gap-3 rounded-lg border border-slate-200 bg-white p-3 md:grid-cols-[1fr_180px_auto]"
+          >
+            <Controller
+              name={`attractions.${attractionIndex}.tags.${tagIndex}.name`}
+              control={control}
+              render={({ field }) => (
+                <FloatingInput {...field} label="Tag Name" />
+              )}
+            />
+            <SelectField
+              control={control}
+              name={`attractions.${attractionIndex}.tags.${tagIndex}.category`}
+              label="Category"
+              options={TAG_CATEGORIES}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-[54px] w-[54px] self-start"
+              onClick={() => remove(tagIndex)}
+              disabled={fields.length === 1}
+            >
+              <Trash2 size={16} />
+            </Button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function AttractionInfo({ control, fields, append, remove, setValue }) {
   return (
@@ -84,6 +141,17 @@ function AttractionInfo({ control, fields, append, remove, setValue }) {
                     />
                   )}
                 />
+                <Controller
+                  name={`attractions.${index}.how_to_reach`}
+                  control={control}
+                  render={({ field }) => (
+                    <FloatingTextarea
+                      {...field}
+                      label="How To Reach"
+                      rows={3}
+                    />
+                  )}
+                />
                 <div className="grid grid-cols-2 gap-4">
                   <SelectField
                     control={control}
@@ -122,7 +190,7 @@ function AttractionInfo({ control, fields, append, remove, setValue }) {
                     />
                   )}
                 />
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <Controller
                     name={`attractions.${index}.avg_duration_hours`}
                     control={control}
@@ -136,7 +204,7 @@ function AttractionInfo({ control, fields, append, remove, setValue }) {
                       />
                     )}
                   />
-                  {/* <Controller
+                  <Controller
                     name={`attractions.${index}.sort_order`}
                     control={control}
                     render={({ field }) => (
@@ -147,7 +215,7 @@ function AttractionInfo({ control, fields, append, remove, setValue }) {
                         label="Sort Order"
                       />
                     )}
-                  /> */}
+                  />
                   <Controller
                     name={`attractions.${index}.approx_entrance_fee`}
                     control={control}
@@ -183,6 +251,10 @@ function AttractionInfo({ control, fields, append, remove, setValue }) {
                     )}
                   />
                 </div>
+                <AttractionTags
+                  control={control}
+                  attractionIndex={index}
+                />
               </div>
               <div className="space-y-5 col-span-2">
                 <GalleryUploader

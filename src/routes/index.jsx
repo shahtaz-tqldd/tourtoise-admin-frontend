@@ -12,11 +12,14 @@ import DestinationDetailPage from "@/pages/destinations/destination-detail";
 import AttractionListPage from "@/pages/destinations/attractions";
 import UpsertAttractionPage from "@/pages/destinations/attractions/upsert-attraction";
 import ActivityListPage from "@/pages/destinations/activities";
+import UpsertActivityPage from "@/pages/destinations/activities/upsert-activity";
 import CuisineListPage from "@/pages/destinations/cuisines";
+import UpsertCuisinePage from "@/pages/destinations/cuisines/upsert-cuisine";
 import TripListPage from "@/pages/trips";
 import SettingsPage from "@/pages/settings";
 import CreditRequestPage from "@/pages/credit-request";
 import ReportPage from "@/pages/reports";
+import VectorStorePage from "@/pages/destinations/vector-store";
 
 export const routes = createBrowserRouter([
   {
@@ -34,6 +37,10 @@ export const routes = createBrowserRouter([
       {
         path: "/destinations",
         element: <DestinationsPage />,
+      },
+      {
+        path: "/vector-store",
+        element: <VectorStorePage />,
       },
       {
         path: "/destinations/new-destination",
@@ -66,6 +73,22 @@ export const routes = createBrowserRouter([
       {
         path: "/destinations/:destination_id/attractions/update/:attraction_id",
         element: <UpsertAttractionPage />,
+      },
+      {
+        path: "/destinations/:destination_id/activities/new-activity",
+        element: <UpsertActivityPage />,
+      },
+      {
+        path: "/destinations/:destination_id/activities/update/:activity_id",
+        element: <UpsertActivityPage />,
+      },
+      {
+        path: "/destinations/:destination_id/cuisines/new-cuisine",
+        element: <UpsertCuisinePage />,
+      },
+      {
+        path: "/destinations/:destination_id/cuisines/update/:cuisine_id",
+        element: <UpsertCuisinePage />,
       },
       {
         path: "/trips",

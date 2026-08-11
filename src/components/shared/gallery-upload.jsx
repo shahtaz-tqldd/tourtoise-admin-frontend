@@ -14,6 +14,7 @@ const GalleryUploader = ({
   galleryImagesName = "gallery_images",
   existingGalleryImagesName = "existing_gallery_images",
   removedGalleryImageIdsName = "removed_gallery_image_ids",
+  removedGalleryImageValueKey = "id",
 }) => {
   const coverInputRef = useRef(null);
   const galleryInputRef = useRef(null);
@@ -78,8 +79,9 @@ const GalleryUploader = ({
     const nextImages = existingGalleryImages.filter((_, itemIndex) => {
       return itemIndex !== index;
     });
-    const nextRemovedIds = image?.id
-      ? [...new Set([...removedGalleryImageIds, image.id])]
+    const removedValue = image?.[removedGalleryImageValueKey];
+    const nextRemovedIds = removedValue
+      ? [...new Set([...removedGalleryImageIds, removedValue])]
       : removedGalleryImageIds;
 
     setValue(existingGalleryImagesName, nextImages, { shouldDirty: true });

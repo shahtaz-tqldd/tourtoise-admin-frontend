@@ -16,6 +16,7 @@ import {
 import { Select, SelectItem, SelectContent, SelectTrigger } from "../ui/select";
 import Pagination from "./pagination";
 import DeleteDialog from "../dialog/delete-dialog";
+import RetrainDialog from "../dialog/retrain-dialog";
 import { useState } from "react";
 
 function TableSkeleton({ columns, rows = 5 }) {
@@ -52,10 +53,13 @@ const ReusableTable = ({
   setPageSize,
   table_options,
   onDeleteConfirm,
+  onRetrainConfirm,
   deleteLoading,
+  retrainLoading,
   className,
 }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [retrainDialogOpen, setRetrainDialogOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
 
   const openDeleteDialog = (id) => {
@@ -67,6 +71,18 @@ const ReusableTable = ({
     if (!selectedId) return;
     await onDeleteConfirm(selectedId);
     setDeleteDialogOpen(false);
+    setSelectedId(null);
+  };
+
+  const openRetrainDialog = (id) => {
+    setSelectedId(id);
+    setRetrainDialogOpen(true);
+  };
+
+  const handleRetrainConfirm = async () => {
+    if (!selectedId || !onRetrainConfirm) return;
+    await onRetrainConfirm(selectedId);
+    setRetrainDialogOpen(false);
     setSelectedId(null);
   };
 
@@ -140,6 +156,8 @@ const ReusableTable = ({
                                   onClick={() =>
                                     option.type === "delete"
                                       ? openDeleteDialog(item.id)
+                                      : option.type === "retrain"
+                                        ? openRetrainDialog(item.id)
                                       : option?.action?.(item.id, item)
                                   }
                                   className={`rounded-xl px-3 py-2 ${
@@ -200,6 +218,12 @@ const ReusableTable = ({
         setOpen={setDeleteDialogOpen}
         onConfirm={handleConfirm}
         isLoading={deleteLoading}
+      />
+      <RetrainDialog
+        open={retrainDialogOpen}
+        setOpen={setRetrainDialogOpen}
+        onConfirm={handleRetrainConfirm}
+        isLoading={retrainLoading}
       />
     </section>
   );

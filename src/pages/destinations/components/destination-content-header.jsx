@@ -18,24 +18,21 @@ const DestinationContentHeader = ({ destinationId, title, action }) => {
 
   return (
     <div className="space-y-4">
-      <Link
-        to="/destinations"
-        className="inline-flex items-center gap-2 text-sm text-primary"
-      >
-        <ArrowLeft size={16} />
-        Destinations
-      </Link>
-
       <div className="flbx flex-wrap gap-4">
-        <div>
-          <Title variant="lg">
-            {destinationName ? `${title} of ${destinationName}` : title}
-          </Title>
-          {isFetching && (
-            <Text variant="xs" className="mt-1">
-              Loading destination...
-            </Text>
-          )}
+        <div className="flx gap-3">
+          <Link to="/destinations" className="inline-flex items-center gap-2">
+            <ArrowLeft />
+          </Link>
+          <div>
+            <Title variant="lg">
+              {destinationName ? `${title} of ${destinationName}` : title}
+            </Title>
+            {isFetching && (
+              <Text variant="xs" className="mt-1">
+                Loading destination...
+              </Text>
+            )}
+          </div>
         </div>
         {action}
       </div>

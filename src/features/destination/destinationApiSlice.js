@@ -67,6 +67,14 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["destination-list"],
     }),
 
+    retrainDestination: builder.mutation({
+      query: (destination_id) => ({
+        url: `/admin/destinations/${destination_id}/re-train/`,
+        method: "POST",
+      }),
+      invalidatesTags: ["destination-list"],
+    }),
+
     downloadTemplate: builder.query({
       query: () => {
         return {
@@ -160,6 +168,14 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["attraction-list"],
     }),
 
+    retrainAttraction: builder.mutation({
+      query: ({ destination_id, attraction_id }) => ({
+        url: `/admin/destinations/${destination_id}/attractions/${attraction_id}/re-train/`,
+        method: "POST",
+      }),
+      invalidatesTags: ["attraction-list"],
+    }),
+
     downloadAttractionTemplate: builder.query({
       query: ({ destination_id }) => {
         return {
@@ -239,6 +255,14 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
           method: "DELETE",
         };
       },
+      invalidatesTags: ["activity-list"],
+    }),
+
+    retrainActivity: builder.mutation({
+      query: ({ destination_id, activity_id }) => ({
+        url: `/admin/destinations/${destination_id}/activities/${activity_id}/re-train/`,
+        method: "POST",
+      }),
       invalidatesTags: ["activity-list"],
     }),
 
@@ -324,6 +348,14 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["cuisine-list"],
     }),
 
+    retrainCuisine: builder.mutation({
+      query: ({ destination_id, cuisine_id }) => ({
+        url: `/admin/destinations/${destination_id}/cuisines/${cuisine_id}/re-train/`,
+        method: "POST",
+      }),
+      invalidatesTags: ["cuisine-list"],
+    }),
+
     downloadCuisineTemplate: builder.query({
       query: ({ destination_id }) => {
         return {
@@ -354,6 +386,7 @@ export const {
   useDestinationShortDetailsQuery,
   useUpdateDestinationMutation,
   useDeleteDestinationMutation,
+  useRetrainDestinationMutation,
   useDownloadTemplateQuery,
   useBulkUploadMutation,
   useScrapDestinationMutation,
@@ -364,6 +397,7 @@ export const {
   useAttractionDetailQuery,
   useUpdateAttractionMutation,
   useDeleteAttractionMutation,
+  useRetrainAttractionMutation,
   useDownloadAttractionTemplateQuery,
   useBulkAttractionUploadMutation,
 
@@ -373,6 +407,7 @@ export const {
   useActivityDetailQuery,
   useUpdateActivityMutation,
   useDeleteActivityMutation,
+  useRetrainActivityMutation,
   useDownloadActivityTemplateQuery,
   useBulkActivityUploadMutation,
 
@@ -382,6 +417,7 @@ export const {
   useCuisineDetailQuery,
   useUpdateCuisineMutation,
   useDeleteCuisineMutation,
+  useRetrainCuisineMutation,
   useDownloadCuisineTemplateQuery,
   useBulkCuisineUploadMutation,
 } = destinationApiSlice;

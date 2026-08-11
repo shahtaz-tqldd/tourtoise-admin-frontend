@@ -25,6 +25,7 @@ import {
   useDeleteDestinationMutation,
   useDestinationListQuery,
   useDownloadTemplateQuery,
+  useRetrainDestinationMutation,
   useScrapDestinationMutation,
   useUpdateDestinationMutation,
 } from "@/features/destination/destinationApiSlice";
@@ -40,7 +41,7 @@ import {
 } from "lucide-react";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
 
@@ -64,12 +65,12 @@ const DestinationsPage = () => {
 
   const destinationColumns = [
     { header: "Name", accessorKey: "name" },
-    { header: "Country", accessorKey: "country" },
+    { header: "Location", accessorKey: "location" },
     { header: "Type", accessorKey: "destination_type" },
-    { header: "Budget", accessorKey: "budget_tier" },
     { header: "Best Time", accessorKey: "best_time" },
-    { header: "Status", accessorKey: "status" },
+    { header: "Training Status", accessorKey: "training_status" },
     { header: "Updated", accessorKey: "updated_at" },
+    { header: "Status", accessorKey: "status" },
     { header: "Action", accessorKey: "action" },
   ];
 
@@ -89,6 +90,8 @@ const DestinationsPage = () => {
 
   const [deleteDestination, { isLoading: deleteLoading }] =
     useDeleteDestinationMutation();
+  const [retrainDestination, { isLoading: retrainLoading }] =
+    useRetrainDestinationMutation();
   const [updateDestination, { isLoading: publishLoading }] =
     useUpdateDestinationMutation();
   const [bulkUpload, { isLoading: bulkUploading }] = useBulkUploadMutation();
@@ -210,6 +213,20 @@ const DestinationsPage = () => {
 
   const handleView = (dest_id) => {
     navigate(`/destinations/${dest_id}`);
+  };
+
+  const handleRetrainDestination = async (dest_id) => {
+    try {
+      await retrainDestination(dest_id).unwrap();
+      toast.success("Destination retraining started");
+    } catch (error) {
+      const message =
+        error?.data?.message ||
+        error?.data?.error?.[0] ||
+        error?.data?.detail ||
+        "Destination retraining could not be started";
+      toast.error(message);
+    }
   };
 
   const handleViewAttractions = (dest_id) => {
@@ -385,6 +402,11 @@ const DestinationsPage = () => {
       disabled: () => publishLoading,
     },
     {
+      label: "Retrain",
+      type: "retrain",
+      disabled: () => retrainLoading,
+    },
+    {
       label: "Delete",
       type: "delete",
     },
@@ -413,18 +435,32 @@ const DestinationsPage = () => {
           {item.destination_type?.replaceAll("_", " ") || "N/A"}
         </span>
       ),
-      budget_tier: (
-        <span className="capitalize">
-          {item.budget_tier?.replaceAll("_", " ") || "N/A"}
-        </span>
-      ),
       best_time: item.best_travel_months?.length
         ? formatMonths(item.best_travel_months)
         : "N/A",
       status: <StatusBadge status={item.status || "draft"} />,
-      updated_at: item.updated_at
-        ? moment(item.updated_at).format("MMM D, YYYY")
-        : "N/A",
+      training_status: (
+        <StatusBadge
+          status={item.is_trained_completed ? "Complete" : "Incomplete"}
+        />
+      ),
+      updated_at: (
+        <div>
+          <span className="block font-semibold">
+            {moment(item?.updated_at).format("MMM D, YYYY")}
+          </span>
+          <span className="text-xs text-slate-500">
+            Created on {moment(item?.created_at).format("MMM D, YYYY")}
+          </span>
+        </div>
+      ),
+      location: (
+        <div>
+          <span className="block font-semibold">{item.country}</span>
+          <span className="text-xs text-slate-500">{item?.region}</span>
+        </div>
+      ),
+
       tags: (
         <div className="flex max-w-[220px] flex-wrap gap-1">
           {item.tags?.length ? (
@@ -454,56 +490,63 @@ const DestinationsPage = () => {
     <section className="space-y-8">
       <div className="flbx">
         <Title variant="lg">Destinations</Title>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              disabled={templateDownloading}
-              className="rounded-full !pl-4"
-            >
-              {templateDownloading ? (
-                <Loader2 className="animate-spin" size={16} />
-              ) : (
+        <div className="flx gap-2.5">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                disabled={templateDownloading}
+                className="rounded-full !pl-4"
+              >
+                {templateDownloading ? (
+                  <Loader2 className="animate-spin" size={16} />
+                ) : (
+                  <Plus size={16} />
+                )}
+                Add Destination
+                <ChevronDown size={16} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 rounded-xl p-1">
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => navigate("/destinations/new-destination")}
+              >
                 <Plus size={16} />
-              )}
-              Add Destination
-              <ChevronDown size={16} />
+                Add new destination
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={handleOpenTemplateDialog}
+              >
+                {templateDownloading ? (
+                  <Loader2 className="animate-spin" size={16} />
+                ) : (
+                  <Download size={16} />
+                )}
+                Download template
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => setBulkDialogOpen(true)}
+              >
+                <Upload size={16} />
+                Bulk upload
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => setScrapDialogOpen(true)}
+              >
+                <WandSparkles size={16} />
+                Scrap destination
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Link to="/vector-store">
+            <Button variant="outline" className="rounded-full">
+              Vector Store
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 rounded-xl p-1">
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => navigate("/destinations/new-destination")}
-            >
-              <Plus size={16} />
-              Add new destination
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={handleOpenTemplateDialog}
-            >
-              {templateDownloading ? (
-                <Loader2 className="animate-spin" size={16} />
-              ) : (
-                <Download size={16} />
-              )}
-              Download template
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => setBulkDialogOpen(true)}
-            >
-              <Upload size={16} />
-              Bulk upload
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => setScrapDialogOpen(true)}
-            >
-              <WandSparkles size={16} />
-              Scrap destination
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </Link>
+        </div>
       </div>
 
       <ReusableTable
@@ -517,7 +560,9 @@ const DestinationsPage = () => {
         totalItems={total_item}
         table_options={table_options}
         onDeleteConfirm={handleDeleteDestination}
+        onRetrainConfirm={handleRetrainDestination}
         deleteLoading={deleteLoading}
+        retrainLoading={retrainLoading}
         className="mt-4"
       />
 

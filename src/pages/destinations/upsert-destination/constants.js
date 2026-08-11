@@ -16,36 +16,50 @@ export const TAG_CATEGORIES = ["experience", "vibe", "activity"];
 export const ATTRACTION_TYPES = [
   "temple",
   "museum",
-  "landmark",
+  "natural_site",
+  "viewpoint",
+  "monument",
   "market",
   "park",
-  "viewpoint",
-  "historic_site",
+  "beach",
+  "waterfall",
+  "other",
 ];
 
 export const ACTIVITY_TYPES = [
+  "trekking",
+  "water_sports",
   "cultural",
+  "wildlife",
   "adventure",
-  "food",
-  "nature",
-  "shopping",
   "wellness",
+  "food_tour",
+  "city_tour",
+  "day_trip",
 ];
 
 export const CUISINE_TYPES = [
+  "local",
   "Street food",
   "Local dish",
   "Dessert",
   "Drink",
   "Fine dining",
 ];
-export const SPICE_LEVELS = ["mild", "medium", "hot"];
-export const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack", "dessert"];
+export const SPICE_LEVELS = ["none", "mild", "medium", "hot", "very_hot"];
+export const MEAL_TYPES = [
+  "breakfast",
+  "lunch",
+  "dinner",
+  "snack",
+  "dessert",
+  "drink",
+  "any",
+];
 export const TIME_OF_DAY_OPTIONS = [
   "morning",
   "afternoon",
   "evening",
-  "night",
   "anytime",
 ];
 export const COST_UNITS = ["per person", "per group", "per day", "fixed"];
@@ -69,6 +83,7 @@ export const EMPTY_ATTRACTION = {
   name: "",
   attraction_type: "",
   description: "",
+  how_to_reach: "",
   latitude: "",
   longitude: "",
   address: "",
@@ -86,6 +101,7 @@ export const EMPTY_ATTRACTION = {
   is_featured: false,
   picking_reasons: "",
   notes: "",
+  tags: [{ name: "", category: "" }],
 };
 
 export const EMPTY_ACTIVITY = {

@@ -144,6 +144,13 @@ function getCollectionPayload(items, requiredKey = "name") {
         }
         if (typeof value === "boolean") {
           acc[key] = value;
+        } else if (key === "tags" && Array.isArray(value)) {
+          acc[key] = value
+            .map((tag) => ({
+              name: String(tag?.name || "").trim(),
+              category: String(tag?.category || "").trim(),
+            }))
+            .filter((tag) => tag.name && tag.category);
         } else if (listTextFields.includes(key)) {
           acc[key] = splitList(value);
         } else if (
@@ -179,6 +186,9 @@ function normalizeCollection(items, fallback) {
     removed_gallery_image_ids: [],
     picking_reasons: joinList(item?.picking_reasons),
     notes: joinList(item?.notes),
+    ...(Object.hasOwn(fallback, "tags") && {
+      tags: normalizeTags(item?.tags),
+    }),
   }));
   return normalized.length ? normalized : [{ ...fallback }];
 }

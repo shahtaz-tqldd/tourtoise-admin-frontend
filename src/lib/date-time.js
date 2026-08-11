@@ -59,3 +59,15 @@ export function normalizeMonths(value) {
     .map((item) => Number(item))
     .filter((item) => Number.isInteger(item) && item >= 1 && item <= 12);
 }
+
+export const formatDuration = (hours) => {
+  if (!hours) return "N/A";
+
+  const days = Math.floor(hours / 24);
+  const remainingHours = hours % 24;
+
+  if (!days) return `${hours} hr`;
+  if (!remainingHours) return `${days} day${days > 1 ? "s" : ""}`;
+
+  return `${days} day${days > 1 ? "s" : ""} ${remainingHours} hr`;
+};

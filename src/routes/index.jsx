@@ -16,10 +16,11 @@ import UpsertActivityPage from "@/pages/destinations/activities/upsert-activity"
 import CuisineListPage from "@/pages/destinations/cuisines";
 import UpsertCuisinePage from "@/pages/destinations/cuisines/upsert-cuisine";
 import TripListPage from "@/pages/trips";
-import SettingsPage from "@/pages/settings";
+import AccountSettingsPage from "@/pages/settings";
 import CreditRequestPage from "@/pages/credit-request";
 import ReportPage from "@/pages/reports";
 import VectorStorePage from "@/pages/destinations/vector-store";
+import AppConfigPage from "@/pages/app-config";
 
 export const routes = createBrowserRouter([
   {
@@ -39,7 +40,7 @@ export const routes = createBrowserRouter([
         element: <DestinationsPage />,
       },
       {
-        path: "/vector-store",
+        path: "/destinations/vector-store",
         element: <VectorStorePage />,
       },
       {
@@ -107,8 +108,12 @@ export const routes = createBrowserRouter([
         element: <ReportPage />,
       },
       {
-        path: "/settings",
-        element: <SettingsPage />,
+        path: "/account-settings",
+        element: <AccountSettingsPage />,
+      },
+      {
+        path: "/app-config",
+        element: <AppConfigPage />,
       },
     ],
   },

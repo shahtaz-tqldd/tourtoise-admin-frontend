@@ -573,7 +573,7 @@ const DestinationsPage = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Link to="/vector-store">
+          <Link to="/destinations/vector-store">
             <Button variant="outline" className="rounded-full">
               Vector Store
             </Button>

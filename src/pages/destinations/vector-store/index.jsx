@@ -1,11 +1,10 @@
 import { useMemo, useState } from "react";
-import { Database, Search, Sparkles, X } from "lucide-react";
+import { Database, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import ConfirmDialog from "@/components/dialog/confirm-dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Title } from "@/components/ui/typography";
+import { Text, Title } from "@/components/ui/typography";
 import {
   useAppConfigQuery,
   useUpdateAppConfigMutation,
@@ -196,18 +195,20 @@ const VectorStorePage = () => {
   return (
     <section className="space-y-7">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <Database className="h-5 w-5" />
+        <div className="flx gap-4">
+          <div className="flex size-11 rounded-2xl bg-primary/10 text-primary center">
+            <Database className="size-5" />
           </div>
-          <Title variant="lg">Vector store</Title>
-          <p className="mt-1 max-w-xl text-sm text-slate-500">
-            Browse embedded content, inspect metadata, and run semantic
-            similarity searches.
-          </p>
+          <div>
+            <Title variant="lg">Vector store</Title>
+            <Text variant="sm" className="mt-1 max-w-xl">
+              Browse embedded content, inspect metadata, and run semantic
+              similarity searches.
+            </Text>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3 self-end rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+        <div className="flex items-center gap-3 self-end rounded-2xl border border-primary/30 bg-white px-4 py-3">
           <div className="text-right">
             <p className="text-sm font-semibold text-slate-700">
               Vectorization
@@ -240,47 +241,14 @@ const VectorStorePage = () => {
         </div>
       </div>
 
-      <form
-        onSubmit={handleSearch}
-        className="ml-auto flex w-full gap-2 lg:max-w-xl"
-      >
-        <div className="relative min-w-0 flex-1">
-          <Sparkles
-            className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary"
-            aria-hidden="true"
-          />
-          <Input
-            value={queryInput}
-            onChange={(event) => setQueryInput(event.target.value)}
-            placeholder="Search by meaning, topic, or phrase…"
-            aria-label="Semantic search query"
-            className="h-12 rounded-2xl border-slate-200 bg-white pl-10 pr-10 shadow-sm"
-          />
-          {queryInput && (
-            <button
-              type="button"
-              onClick={clearSearch}
-              aria-label="Clear semantic search"
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-        <Button
-          type="submit"
-          className="h-12 rounded-2xl px-5"
-          disabled={!queryInput.trim()}
-        >
-          <Search />
-          <span className="hidden sm:inline">Search</span>
-        </Button>
-      </form>
-
       <VectorFilter
+        queryInput={queryInput}
         sourceType={sourceType}
         destinationId={destinationId}
         sourceId={sourceId}
+        onQueryInputChange={setQueryInput}
+        onSearch={handleSearch}
+        onClearSearch={clearSearch}
         onSourceTypeChange={(value) => updateFilter(setSourceType, value)}
         onDestinationIdChange={(value) => updateFilter(setDestinationId, value)}
         onSourceIdChange={(value) => updateFilter(setSourceId, value)}

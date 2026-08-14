@@ -1,14 +1,12 @@
 import { useState } from "react";
 
-import { FileText, LogOut, ShieldCheck, UserRound } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 import { Title } from "@/components/ui/typography";
 import useAuth from "@/hooks/useAuth";
 import PasswordUpdateDialog from "./accounts/password-update-dialog";
 import ActivityLogs from "./accounts/activity-logs";
 import AccountInfo from "./accounts/account-info";
-import LegalContent from "./documents/legal-content";
-import TabMenu from "@/components/ui/tab";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,11 +22,6 @@ import { userLoggedOut } from "@/features/auth/authSlice";
 import { resetApiState } from "@/features/api/apiSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
-const PAGE_TABS = [
-  { value: "account", label: "Account & security", icon: UserRound },
-  { value: "content", label: "Platform content", icon: FileText },
-];
 
 function AccountTab({ user, onProfilePreviewChange }) {
   const [passwordOpen, setPasswordOpen] = useState(false);
@@ -49,11 +42,10 @@ function AccountTab({ user, onProfilePreviewChange }) {
   );
 }
 
-const SettingsPage = () => {
+const AccountSettingsPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState("account");
   const [profilePreview, setProfilePreview] = useState("");
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const { user, isLoading } = useAuth();
@@ -107,33 +99,19 @@ const SettingsPage = () => {
         </Dialog>
       </div>
 
-      <TabMenu
-        tabs={PAGE_TABS}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        className="sticky -top-8 z-20 overflow-hidden md:rounded-t-2xl bg-gray-50 pt-2 -mx-8 px-8"
-      />
-
-      {isLoading && activeTab === "account" ? (
+      {isLoading ? (
         <div className="grid animate-pulse gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
           <div className="h-[360px] rounded-3xl bg-slate-200" />
           <div className="h-[360px] rounded-3xl bg-slate-200" />
         </div>
-      ) : (
-        <>
-          {activeTab === "account" && (
-            <AccountTab
-              user={
-                profilePreview ? { ...user, avatar_url: profilePreview } : user
-              }
-              onProfilePreviewChange={setProfilePreview}
-            />
-          )}
-          {activeTab === "content" && <LegalContent />}
-        </>
-      )}
+      ) : null}
+
+      <AccountTab
+        user={profilePreview ? { ...user, avatar_url: profilePreview } : user}
+        onProfilePreviewChange={setProfilePreview}
+      />
     </section>
   );
 };
 
-export default SettingsPage;
+export default AccountSettingsPage;

@@ -6,6 +6,7 @@ import {
   CalendarDays,
   Coins,
   FlagTriangleRight,
+  User,
 } from "lucide-react";
 
 export const NAVMENU_ITEMS = [
@@ -47,8 +48,14 @@ export const NAVMENU_ITEMS = [
   },
   {
     id: 7,
-    label: "Account Settings",
-    link: "/settings",
+    label: "App Config",
+    link: "/app-config",
     icon: <Settings size={18} />,
+  },
+  {
+    id: 8,
+    label: "Account Settings",
+    link: "/account-settings",
+    icon: <User size={18} />,
   },
 ];

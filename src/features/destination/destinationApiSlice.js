@@ -28,6 +28,19 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
       providesTags: ["destination-list"],
     }),
 
+    destinationTagList: builder.query({
+      query: ({ search_query = "" }) => {
+        let url = `/destinations/tags/`;
+        if (search_query) {
+          url += `?search=${search_query}`;
+        }
+        return {
+          url,
+          method: "GET",
+        };
+      },
+    }),
+
     destinationDetail: builder.query({
       query: (destination_id) => {
         return {
@@ -382,6 +395,7 @@ export const {
   // destinations
   useCreateNewDestinationMutation,
   useDestinationListQuery,
+  useLazyDestinationTagListQuery,
   useDestinationDetailQuery,
   useDestinationShortDetailsQuery,
   useUpdateDestinationMutation,

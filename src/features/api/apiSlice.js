@@ -86,6 +86,7 @@ export const apiSlice = createApi({
     "activity-list",
     "cuisine-list",
     "record-list",
+    "app-config",
   ],
   keepUnusedDataFor: 300, // Don't keep any unused data
   refetchOnMountOrArgChange: false, // Always refetch when component mounts

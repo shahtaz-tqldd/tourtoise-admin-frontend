@@ -24,6 +24,7 @@ import {
   useBulkUploadMutation,
   useDeleteDestinationMutation,
   useDestinationListQuery,
+  useLazyDestinationTagListQuery,
   useDownloadTemplateQuery,
   useRetrainDestinationMutation,
   useScrapDestinationMutation,
@@ -78,6 +79,9 @@ const DestinationsPage = () => {
     page: page,
     page_size: pageSize,
   });
+
+  const [getDestinationTags, { isFetching: destinationTagsDownloading }] =
+    useLazyDestinationTagListQuery();
 
   const {
     data: templateData,
@@ -262,6 +266,22 @@ const DestinationsPage = () => {
   const handleOpenTemplateDialog = () => {
     setTemplateDialogOpen(true);
     setDownloadRequested(true);
+  };
+
+  const handleDestinationTagsDownload = async () => {
+    try {
+      const destinationTagData = await getDestinationTags({}).unwrap();
+
+      saveBlob(
+        new Blob([JSON.stringify(destinationTagData?.data, null, 2)], {
+          type: "application/json;charset=utf-8;",
+        }),
+        "destination-tags.json",
+      );
+      toast.success("Destination tags downloaded");
+    } catch {
+      toast.error("Destination tags could not be downloaded");
+    }
   };
 
   const handleTemplateDownload = async (format) => {
@@ -524,6 +544,18 @@ const DestinationsPage = () => {
                   <Download size={16} />
                 )}
                 Download template
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                disabled={destinationTagsDownloading}
+                onClick={handleDestinationTagsDownload}
+              >
+                {destinationTagsDownloading ? (
+                  <Loader2 className="animate-spin" size={16} />
+                ) : (
+                  <Download size={16} />
+                )}
+                Download Destination Tags
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer"

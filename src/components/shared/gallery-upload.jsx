@@ -184,7 +184,7 @@ const GalleryUploader = ({
           {existingGalleryImages.map((image, index) => (
             <div
               key={image.id || image.url}
-              className="group relative aspect-square overflow-hidden rounded-lg border border-slate-200 bg-white"
+              className="group relative size-36 overflow-hidden rounded-lg border border-slate-200 bg-white"
             >
               <img
                 src={image.url}
@@ -232,7 +232,7 @@ const GalleryUploader = ({
               onClick={openGalleryPicker}
               className="size-36 flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white px-3 text-center text-slate-500 transition hover:border-primary hover:bg-primary/5 hover:text-primary"
             >
-              <ImagePlus size={24} className="text-primary"/>
+              <ImagePlus size={24} className="text-primary" />
               <span className="mt-2 text-xs font-semibold text-slate-600">
                 Upload Gallery Image
               </span>

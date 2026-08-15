@@ -92,12 +92,9 @@ const ReportDetailsDialog = ({ report, open, onOpenChange, onReviewed }) => {
           <div className="max-h-[65vh] space-y-5 overflow-y-auto px-6">
             <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
               <TableProfile
-                name={
-                  report.reporter?.name ||
-                  report.reporter?.username ||
-                  "Unknown reporter"
-                }
+                name={report.reporter?.name || "Unknown reporter"}
                 email={report.reporter?.email || "No email"}
+                profile_img_url={report?.reporter?.avatar_url}
               />
               <StatusBadge status={report.status || "pending"} />
             </div>
@@ -120,12 +117,9 @@ const ReportDetailsDialog = ({ report, open, onOpenChange, onReviewed }) => {
               </Text>
               <div className="mt-3 flbx">
                 <TableProfile
-                  name={
-                    targetAuthor?.name ||
-                    targetAuthor?.username ||
-                    "Unknown author"
-                  }
+                  name={targetAuthor?.name || "Unknown author"}
                   email={targetAuthor?.email || "No email"}
+                  profile_img_url={targetAuthor?.avatar_url}
                 />
                 <StatusBadge status={formatLabel(report.target_type)} />
               </div>

@@ -91,12 +91,9 @@ const ReportPage = () => {
         raw_report: report,
         reporter_display: (
           <TableProfile
-            name={
-              report.reporter?.name ||
-              report.reporter?.username ||
-              "Unknown reporter"
-            }
+            name={report.reporter?.name || "Unknown reporter"}
             email={report.reporter?.email || "No email"}
+            profile_img_url={report?.reporter?.avatar_url}
           />
         ),
         target_display: (

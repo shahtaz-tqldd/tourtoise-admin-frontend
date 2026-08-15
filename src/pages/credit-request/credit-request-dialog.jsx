@@ -102,10 +102,9 @@ const CreditRequestDetailsDialog = ({
           <div className="space-y-5 px-6">
             <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
               <TableProfile
-                name={
-                  request.user?.name || request.user?.username || "Unknown user"
-                }
+                name={request.user?.name || "Unknown user"}
                 email={request.user?.email || "No email"}
+                profile_img_url={request?.user?.avatar_url}
               />
               <StatusBadge status={request.status || "pending"} />
             </div>

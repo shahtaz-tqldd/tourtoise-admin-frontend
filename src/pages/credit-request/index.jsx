@@ -78,8 +78,9 @@ const CreditRequestPage = () => {
       raw_request: request,
       requester: (
         <TableProfile
-          name={request.user?.name || request.user?.username || "Unknown user"}
+          name={request.user?.name || "Unknown user"}
           email={request.user?.email || "No email"}
+          profile_img_url={request?.user?.avatar_url}
         />
       ),
       reason_preview: (

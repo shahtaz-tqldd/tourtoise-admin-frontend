@@ -1,7 +1,7 @@
 import { Text, Title } from "@/components/ui/typography";
 import { useDestinationShortDetailsQuery } from "@/features/destination/destinationApiSlice";
 import { cn } from "@/lib/utils";
-import { ArrowLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import React from "react";
 import { Link, NavLink } from "react-router-dom";
 
@@ -20,8 +20,11 @@ const DestinationContentHeader = ({ destinationId, title, action }) => {
     <div className="space-y-4">
       <div className="flbx flex-wrap gap-4">
         <div className="flx gap-3">
-          <Link to="/destinations" className="inline-flex items-center gap-2">
-            <ArrowLeft />
+          <Link
+            to="/destinations"
+            className="size-10 rounded-full bg-primary/5 hover:bg-primary/10 center text-slate-900 tr"
+          >
+            <ChevronLeft size={16} />
           </Link>
           <div>
             <Title variant="lg">

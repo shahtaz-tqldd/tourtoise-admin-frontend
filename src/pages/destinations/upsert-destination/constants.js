@@ -65,18 +65,18 @@ export const TIME_OF_DAY_OPTIONS = [
 export const COST_UNITS = ["per person", "per group", "per day", "fixed"];
 
 export const MONTH_OPTIONS = [
-  { value: 1, label: "Jan" },
-  { value: 2, label: "Feb" },
-  { value: 3, label: "Mar" },
-  { value: 4, label: "Apr" },
-  { value: 5, label: "May" },
-  { value: 6, label: "Jun" },
-  { value: 7, label: "Jul" },
-  { value: 8, label: "Aug" },
-  { value: 9, label: "Sep" },
-  { value: 10, label: "Oct" },
-  { value: 11, label: "Nov" },
-  { value: 12, label: "Dec" },
+  { value: 0, label: "Jan" },
+  { value: 1, label: "Feb" },
+  { value: 2, label: "Mar" },
+  { value: 3, label: "Apr" },
+  { value: 4, label: "May" },
+  { value: 5, label: "Jun" },
+  { value: 6, label: "Jul" },
+  { value: 7, label: "Aug" },
+  { value: 8, label: "Sep" },
+  { value: 9, label: "Oct" },
+  { value: 10, label: "Nov" },
+  { value: 11, label: "Dec" },
 ];
 
 export const EMPTY_ATTRACTION = {
@@ -95,6 +95,7 @@ export const EMPTY_ATTRACTION = {
   budget_tier: "",
   avg_duration_hours: "",
   best_time_of_day: "",
+  best_months: [],
   entrance_fee_required: false,
   approx_entrance_fee: "",
   sort_order: "",
@@ -112,7 +113,7 @@ export const EMPTY_ACTIVITY = {
   budget_tier: "",
   approx_cost: "",
   duration_hours: "",
-  best_season: "",
+  best_months: [],
   cover_image: "",
   cover_image_file: null,
   gallery_images: null,

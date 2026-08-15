@@ -16,6 +16,7 @@ import DestinationContentHeader from "../components/destination-content-header";
 import moment from "moment";
 import StatusBadge from "@/components/ui/status";
 import { Check } from "lucide-react";
+import SelectedDataActions from "../components/selected-data-actions";
 
 const formatLabel = (value) => (value ? value.replaceAll("_", " ") : "N/A");
 
@@ -27,6 +28,7 @@ const ActivityListPage = () => {
   const [downloadRequested, setDownloadRequested] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const activityColumns = [
     { header: "Name", accessorKey: "name" },
@@ -180,8 +182,15 @@ const ActivityListPage = () => {
             setDownloadRequested={setDownloadRequested}
             uploadBulk={(formData) => bulkUpload({ destination_id, formData })}
             bulkUploading={bulkUploading}
+            type="activities"
           />
         }
+      />
+
+      <SelectedDataActions
+        type="activities"
+        selectedIds={selectedIds}
+        setSelectedIds={setSelectedIds}
       />
 
       <ReusableTable
@@ -199,6 +208,8 @@ const ActivityListPage = () => {
         deleteLoading={deleteLoading}
         retrainLoading={retrainLoading}
         className="mt-4"
+        selectedIds={selectedIds}
+        onSelectedIdsChange={setSelectedIds}
       />
       <ActivityDetailsDialog
         open={detailsOpen}

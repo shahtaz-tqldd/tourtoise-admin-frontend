@@ -217,7 +217,7 @@ function SelectField({
       name={name}
       control={control}
       rules={rules}
-      render={({ field }) => {
+      render={({ field, fieldState }) => {
         const optionItems = options.map((option) => {
           const value = typeof option === "string" ? option : option.value;
           return {
@@ -257,6 +257,7 @@ function SelectField({
         return (
           <div className={className}>
             <FloatingSelect
+              key={`${name}-${selectedOption?.value || "empty"}`}
               label={label}
               placeholder={`Select ${label.toLowerCase()}`}
               value={selectedOption?.value || ""}
@@ -287,7 +288,11 @@ function SelectField({
                 );
               })}
             </FloatingSelect>
-            {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+            {(fieldState.error?.message || error) && (
+              <p className="mt-1 text-xs text-red-500">
+                {fieldState.error?.message || error}
+              </p>
+            )}
           </div>
         );
       }}

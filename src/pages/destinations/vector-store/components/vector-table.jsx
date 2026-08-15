@@ -46,9 +46,14 @@ const shortId = (value) => {
   return value.length > 18 ? `${value.slice(0, 8)}…${value.slice(-6)}` : value;
 };
 
-const formatDate = (value) =>
+const formatDateTime = (value) =>
   value && moment(value).isValid()
     ? moment(value).format("MMM D, YYYY · h:mm A")
+    : "Not available";
+
+const formatDate = (value) =>
+  value && moment(value).isValid()
+    ? moment(value).format("MMM D, YYYY")
     : "Not available";
 
 const formatMetadata = (metadata) => {
@@ -246,7 +251,7 @@ const VectorTable = ({
                     </div>
                   </TableCell>
                   <TableCell className="max-w-xl whitespace-normal px-3 py-4">
-                    <p className="line-clamp-3 text-sm leading-6 text-slate-700">
+                    <p className="line-clamp-2 text-sm leading-6 text-slate-700">
                       {record.content || "No content"}
                     </p>
                   </TableCell>
@@ -257,11 +262,11 @@ const VectorTable = ({
                       </p>
                     ) : (
                       <>
-                        <p className="text-sm font-medium text-slate-700">
-                          {formatDate(record.updated_at)}
+                        <p className="text-xs font-medium text-slate-700">
+                          {formatDateTime(record.updated_at)}
                         </p>
                         <p className="mt-1 text-xs text-slate-500">
-                          Created {formatDate(record.created_at)}
+                          Created on {formatDate(record.created_at)}
                         </p>
                       </>
                     )}
@@ -330,7 +335,7 @@ const VectorTable = ({
         open={Boolean(recordToView)}
         onOpenChange={(open) => !open && setRecordToView(null)}
       >
-        <DialogContent className="max-h-[88vh] overflow-y-auto rounded-3xl sm:max-w-3xl">
+        <DialogContent className="rounded-3xl sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>Vector record</DialogTitle>
             <DialogDescription>
@@ -338,7 +343,7 @@ const VectorTable = ({
             </DialogDescription>
           </DialogHeader>
           {recordToView && (
-            <div className="space-y-5 pt-2">
+            <div className="space-y-5 pt-2 custom-scrollbar max-h-[80vh]">
               <div className="grid gap-3 rounded-2xl bg-slate-50 p-4 sm:grid-cols-2">
                 <div>
                   <p className="text-xs font-semibold uppercase text-slate-400">
@@ -379,7 +384,7 @@ const VectorTable = ({
                     Created
                   </p>
                   <p className="mt-1 text-sm text-slate-700">
-                    {formatDate(recordToView.created_at)}
+                    {formatDateTime(recordToView.created_at)}
                   </p>
                 </div>
                 <div>
@@ -387,7 +392,7 @@ const VectorTable = ({
                     Updated
                   </p>
                   <p className="mt-1 text-sm text-slate-700">
-                    {formatDate(recordToView.updated_at)}
+                    {formatDateTime(recordToView.updated_at)}
                   </p>
                 </div>
               </div>
@@ -395,7 +400,7 @@ const VectorTable = ({
                 <p className="mb-2 text-sm font-semibold text-slate-700">
                   Content
                 </p>
-                <div className="max-h-64 overflow-y-auto whitespace-pre-wrap rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-700">
+                <div className="whitespace-pre-wrap rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-700">
                   {recordToView.content || "No content"}
                 </div>
               </div>

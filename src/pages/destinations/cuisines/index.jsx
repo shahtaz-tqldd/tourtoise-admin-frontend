@@ -16,6 +16,7 @@ import DestinationContentHeader from "../components/destination-content-header";
 import { Check } from "lucide-react";
 import moment from "moment";
 import StatusBadge from "@/components/ui/status";
+import SelectedDataActions from "../components/selected-data-actions";
 
 const formatLabel = (value) => (value ? value.replaceAll("_", " ") : "N/A");
 
@@ -27,6 +28,7 @@ const CuisineListPage = () => {
   const [downloadRequested, setDownloadRequested] = useState(false);
   const [selectedCuisine, setSelectedCuisine] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const cuisineColumns = [
     { header: "Name", accessorKey: "name" },
@@ -179,8 +181,15 @@ const CuisineListPage = () => {
             setDownloadRequested={setDownloadRequested}
             uploadBulk={(formData) => bulkUpload({ destination_id, formData })}
             bulkUploading={bulkUploading}
+            type="cuisines"
           />
         }
+      />
+
+      <SelectedDataActions
+        type="cuisines"
+        selectedIds={selectedIds}
+        setSelectedIds={setSelectedIds}
       />
 
       <ReusableTable
@@ -198,6 +207,8 @@ const CuisineListPage = () => {
         deleteLoading={deleteLoading}
         retrainLoading={retrainLoading}
         className="mt-4"
+        selectedIds={selectedIds}
+        onSelectedIdsChange={setSelectedIds}
       />
       <CuisineDetailsDialog
         open={detailsOpen}

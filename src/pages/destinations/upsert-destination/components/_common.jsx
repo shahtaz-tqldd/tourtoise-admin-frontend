@@ -1,9 +1,12 @@
-import { Controller } from "react-hook-form";
+import { Controller, useFieldArray } from "react-hook-form";
 import { Title, Text } from "@/components/ui/typography";
-import { MONTH_OPTIONS } from "../constants";
+import { MONTH_OPTIONS, TAG_CATEGORIES } from "../constants";
 import { normalizeMonths } from "@/lib/date-time";
-import { Button } from "@/components/ui/button";
+import { Button, DeleteButton } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import Card from "@/components/ui/card";
+import { SelectField } from "@/components/ui/select";
+import { FloatingInput } from "@/components/ui/input";
 
 export const StepShell = ({ title, description, children }) => {
   return (
@@ -24,7 +27,13 @@ export const CollectionBlock = ({ title, addLabel, onAdd, children }) => {
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-semibold text-slate-800">{title}</p>
-        <Button type="button" variant="outline" size="sm" onClick={onAdd}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={onAdd}
+          className="rounded-full h-10"
+        >
           <Plus size={15} />
           {addLabel}
         </Button>
@@ -34,10 +43,14 @@ export const CollectionBlock = ({ title, addLabel, onAdd, children }) => {
   );
 };
 
-export const MonthPicker = ({ control }) => {
+export const MonthPicker = ({
+  control,
+  name = "best_travel_months",
+  label = "Best Travel Months",
+}) => {
   return (
     <Controller
-      name="best_travel_months"
+      name={name}
       control={control}
       render={({ field }) => {
         const selected = normalizeMonths(field.value);
@@ -45,7 +58,7 @@ export const MonthPicker = ({ control }) => {
         return (
           <div className="md:col-span-2 lg:col-span-3">
             <label className="mb-2 block text-xs font-medium text-slate-500">
-              Best Travel Months
+              {label}
             </label>
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
               {MONTH_OPTIONS.map((month) => {
@@ -75,5 +88,60 @@ export const MonthPicker = ({ control }) => {
         );
       }}
     />
+  );
+};
+
+export const TagsPicker = ({
+  control,
+  name,
+  categoryClassName = "max-w-[180px] w-full",
+}) => {
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: name,
+  });
+  return (
+    <Card>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <p className="text-sm font-semibold text-slate-800">Tags</p>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-9 rounded-full"
+          onClick={() => append({ name: "", category: "" })}
+        >
+          <Plus size={15} />
+          Add Tag
+        </Button>
+      </div>
+      <div className="space-y-3">
+        {fields?.map((field, index) => (
+          <div
+            key={field.id}
+            className="flx gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-[1fr_220px_auto]"
+          >
+            <Controller
+              name={`tags.${index}.name`}
+              control={control}
+              render={({ field }) => (
+                <FloatingInput {...field} label="Tag Name" className="flex-1" />
+              )}
+            />
+            <SelectField
+              control={control}
+              name={`tags.${index}.category`}
+              label="Category"
+              options={TAG_CATEGORIES}
+              className={categoryClassName}
+            />
+            <DeleteButton
+              onClick={() => remove(index)}
+              disabled={fields.length === 1}
+            />
+          </div>
+        ))}
+      </div>
+    </Card>
   );
 };

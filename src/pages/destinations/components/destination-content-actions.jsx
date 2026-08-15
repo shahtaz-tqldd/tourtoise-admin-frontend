@@ -27,6 +27,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
+import BulkDataActions from "./bulk-data-actions";
 
 const getTemplatePayload = (responseData) => responseData?.data || responseData;
 
@@ -90,7 +91,10 @@ const buildXlsxTemplate = (template, templateKey, sheetName) => {
   if (template?.allowed_values) {
     const allowedRows = [["field", "allowed_values"]];
     Object.entries(template.allowed_values).forEach(([field, values]) => {
-      allowedRows.push([field, Array.isArray(values) ? values.join(";") : values]);
+      allowedRows.push([
+        field,
+        Array.isArray(values) ? values.join(";") : values,
+      ]);
     });
     XLSX.utils.book_append_sheet(
       workbook,
@@ -122,11 +126,14 @@ const DestinationContentActions = ({
   setDownloadRequested,
   uploadBulk,
   bulkUploading,
+  type,
 }) => {
   const navigate = useNavigate();
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
   const [bulkFile, setBulkFile] = useState(null);
+  const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
+  const [trainDialogOpen, setTrainDialogOpen] = useState(false);
   const normalizedLabel = label.toLowerCase();
 
   useEffect(() => {
@@ -244,6 +251,13 @@ const DestinationContentActions = ({
             <Upload size={16} />
             Bulk upload
           </DropdownMenuItem>
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => setDownloadDialogOpen(true)}
+          >
+            <Download size={16} />
+            Bulk download
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -347,6 +361,14 @@ const DestinationContentActions = ({
           </form>
         </DialogContent>
       </Dialog>
+
+      <BulkDataActions
+        type={type}
+        downloadOpen={downloadDialogOpen}
+        setDownloadOpen={setDownloadDialogOpen}
+        trainOpen={trainDialogOpen}
+        setTrainOpen={setTrainDialogOpen}
+      />
     </>
   );
 };

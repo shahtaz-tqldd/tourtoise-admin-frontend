@@ -24,7 +24,7 @@ import {
   useBulkUploadMutation,
   useDeleteDestinationMutation,
   useDestinationListQuery,
-  useLazyDestinationTagListQuery,
+  // useLazyDestinationTagListQuery,
   useDownloadTemplateQuery,
   useRetrainDestinationMutation,
   useScrapDestinationMutation,
@@ -45,6 +45,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
+import BulkDataActions from "./components/bulk-data-actions";
+import SelectedDataActions from "./components/selected-data-actions";
 
 const DestinationsPage = () => {
   const navigate = useNavigate();
@@ -55,6 +57,9 @@ const DestinationsPage = () => {
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
   const [scrapDialogOpen, setScrapDialogOpen] = useState(false);
   const [bulkFile, setBulkFile] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
+  const [trainDialogOpen, setTrainDialogOpen] = useState(false);
   const [scrapForm, setScrapForm] = useState({
     name: "",
     country: "",
@@ -80,8 +85,8 @@ const DestinationsPage = () => {
     page_size: pageSize,
   });
 
-  const [getDestinationTags, { isFetching: destinationTagsDownloading }] =
-    useLazyDestinationTagListQuery();
+  // const [getDestinationTags, { isFetching: destinationTagsDownloading }] =
+  //   useLazyDestinationTagListQuery();
 
   const {
     data: templateData,
@@ -268,21 +273,21 @@ const DestinationsPage = () => {
     setDownloadRequested(true);
   };
 
-  const handleDestinationTagsDownload = async () => {
-    try {
-      const destinationTagData = await getDestinationTags({}).unwrap();
+  // const handleDestinationTagsDownload = async () => {
+  //   try {
+  //     const destinationTagData = await getDestinationTags({}).unwrap();
 
-      saveBlob(
-        new Blob([JSON.stringify(destinationTagData?.data, null, 2)], {
-          type: "application/json;charset=utf-8;",
-        }),
-        "destination-tags.json",
-      );
-      toast.success("Destination tags downloaded");
-    } catch {
-      toast.error("Destination tags could not be downloaded");
-    }
-  };
+  //     saveBlob(
+  //       new Blob([JSON.stringify(destinationTagData?.data, null, 2)], {
+  //         type: "application/json;charset=utf-8;",
+  //       }),
+  //       "destination-tags.json",
+  //     );
+  //     toast.success("Destination tags downloaded");
+  //   } catch {
+  //     toast.error("Destination tags could not be downloaded");
+  //   }
+  // };
 
   const handleTemplateDownload = async (format) => {
     try {
@@ -545,7 +550,7 @@ const DestinationsPage = () => {
                 )}
                 Download template
               </DropdownMenuItem>
-              <DropdownMenuItem
+              {/* <DropdownMenuItem
                 className="cursor-pointer"
                 disabled={destinationTagsDownloading}
                 onClick={handleDestinationTagsDownload}
@@ -556,13 +561,20 @@ const DestinationsPage = () => {
                   <Download size={16} />
                 )}
                 Download Destination Tags
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuItem
                 className="cursor-pointer"
                 onClick={() => setBulkDialogOpen(true)}
               >
                 <Upload size={16} />
                 Bulk upload
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => setDownloadDialogOpen(true)}
+              >
+                <Download size={16} />
+                Bulk download
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer"
@@ -581,6 +593,12 @@ const DestinationsPage = () => {
         </div>
       </div>
 
+      <SelectedDataActions
+        type="destinations"
+        selectedIds={selectedIds}
+        setSelectedIds={setSelectedIds}
+      />
+
       <ReusableTable
         data={destinations}
         columns={destinationColumns}
@@ -596,6 +614,16 @@ const DestinationsPage = () => {
         deleteLoading={deleteLoading}
         retrainLoading={retrainLoading}
         className="mt-4"
+        selectedIds={selectedIds}
+        onSelectedIdsChange={setSelectedIds}
+      />
+
+      <BulkDataActions
+        type="destinations"
+        downloadOpen={downloadDialogOpen}
+        setDownloadOpen={setDownloadDialogOpen}
+        trainOpen={trainDialogOpen}
+        setTrainOpen={setTrainDialogOpen}
       />
 
       <Dialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>

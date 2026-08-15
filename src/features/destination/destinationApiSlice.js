@@ -1,5 +1,22 @@
 import { apiSlice } from "../api/apiSlice";
 
+const getBulkParams = ({ type, ids = [] }) => {
+  const params = {};
+  if (type && type !== "destinations") params.type = type;
+  if (ids.length) {
+    const idKey =
+      type === "activities"
+        ? "activity_ids"
+        : type === "attractions"
+          ? "attraction_ids"
+          : type === "cuisines"
+            ? "cuisine_ids"
+            : "destination_ids";
+    params[idKey] = ids.join(",");
+  }
+  return params;
+};
+
 export const destinationApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // destinations
@@ -106,6 +123,48 @@ export const destinationApiSlice = apiSlice.injectEndpoints({
         };
       },
       invalidatesTags: ["destination-list"],
+    }),
+
+    bulkDownloadDestinations: builder.mutation({
+      query: ({ type, format = "xlsx", ids = [] }) => {
+        const params = { ...getBulkParams({ type, ids }), format };
+
+        return {
+          url: `/admin/destinations/bulk-download/`,
+          method: "GET",
+          params,
+          responseHandler: (response) => response.blob(),
+          cache: "no-cache",
+        };
+      },
+    }),
+
+    batchTrainDestinations: builder.mutation({
+      query: ({ type, ids = [] }) => ({
+        url: `/admin/destinations/batch-train/`,
+        method: "POST",
+        params: getBulkParams({ type, ids }),
+      }),
+      invalidatesTags: [
+        "destination-list",
+        "attraction-list",
+        "activity-list",
+        "cuisine-list",
+      ],
+    }),
+
+    batchDeleteDestinations: builder.mutation({
+      query: ({ type, ids }) => ({
+        url: `/admin/destinations/batch-delete/`,
+        method: "DELETE",
+        params: getBulkParams({ type, ids }),
+      }),
+      invalidatesTags: [
+        "destination-list",
+        "attraction-list",
+        "activity-list",
+        "cuisine-list",
+      ],
     }),
 
     scrapDestination: builder.mutation({
@@ -403,6 +462,9 @@ export const {
   useRetrainDestinationMutation,
   useDownloadTemplateQuery,
   useBulkUploadMutation,
+  useBulkDownloadDestinationsMutation,
+  useBatchTrainDestinationsMutation,
+  useBatchDeleteDestinationsMutation,
   useScrapDestinationMutation,
 
   // attractions

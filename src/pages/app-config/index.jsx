@@ -116,7 +116,7 @@ const AppConfigPage = () => {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-primary/50 bg-white px-4 py-3">
+        <div className="rounded-2xl border border-primary/30 bg-white px-4 py-3">
           <div className="flex items-center gap-2 text-sm font-bold text-emerald-800">
             <ShieldCheck className="size-3.5" /> Last saved
           </div>
@@ -178,7 +178,11 @@ const AppConfigPage = () => {
               >
                 <RotateCcw /> Reset
               </Button>
-              <Button type="submit" disabled={!isDirty || isUpdating}>
+              <Button
+                type="submit"
+                disabled={!isDirty || isUpdating}
+                className="rounded-full"
+              >
                 {isUpdating ? (
                   <LoaderCircle className="animate-spin" />
                 ) : (

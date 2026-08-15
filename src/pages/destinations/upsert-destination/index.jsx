@@ -186,6 +186,9 @@ function normalizeCollection(items, fallback) {
     removed_gallery_image_ids: [],
     picking_reasons: joinList(item?.picking_reasons),
     notes: joinList(item?.notes),
+    ...(Object.hasOwn(fallback, "best_months") && {
+      best_months: normalizeMonths(item?.best_months),
+    }),
     ...(Object.hasOwn(fallback, "tags") && {
       tags: normalizeTags(item?.tags),
     }),
@@ -317,7 +320,10 @@ function mapDestinationToForm(destination) {
     ),
     existing_gallery_images: normalizeExistingImages(destination?.images),
     tags: normalizeTags(destination?.tags),
-    attractions: normalizeCollection(destination?.attractions, EMPTY_ATTRACTION),
+    attractions: normalizeCollection(
+      destination?.attractions,
+      EMPTY_ATTRACTION,
+    ),
     activities: normalizeCollection(destination?.activities, EMPTY_ACTIVITY),
     cuisines: normalizeCollection(destination?.cuisines, EMPTY_CUISINE),
   };
@@ -348,7 +354,10 @@ function getDestinationPayload(data) {
     JSON.stringify(normalizeMonths(data.best_travel_months)),
   );
   formData.append("notes", JSON.stringify(splitList(data.notes)));
-  formData.append("picking_reasons", JSON.stringify(splitList(data.picking_reasons)));
+  formData.append(
+    "picking_reasons",
+    JSON.stringify(splitList(data.picking_reasons)),
+  );
   formData.append(
     "attractions",
     JSON.stringify(getCollectionPayload(data.attractions)),
@@ -411,7 +420,10 @@ function getChangedDestinationPayload(data, dirtyFields) {
     formData.append("notes", JSON.stringify(splitList(data.notes)));
   }
   if (dirtyFields.picking_reasons) {
-    formData.append("picking_reasons", JSON.stringify(splitList(data.picking_reasons)));
+    formData.append(
+      "picking_reasons",
+      JSON.stringify(splitList(data.picking_reasons)),
+    );
   }
   if (dirtyFields.attractions) {
     formData.append(
@@ -468,7 +480,11 @@ function hasFormDataEntries(formData) {
   return !formData.entries().next().done;
 }
 
-const DestinationUpsertForm = ({ destination_id, initialValues, isUpdateMode }) => {
+const DestinationUpsertForm = ({
+  destination_id,
+  initialValues,
+  isUpdateMode,
+}) => {
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
 
@@ -526,7 +542,7 @@ const DestinationUpsertForm = ({ destination_id, initialValues, isUpdateMode }) 
         <div className="flx gap-2">
           <Link
             to="/destinations"
-            className="h-10 w-10 rounded-full bg-primary/5 hover:bg-primary/10 center text-slate-900 tr"
+            className="size-10 rounded-full bg-primary/5 hover:bg-primary/10 center text-slate-900 tr"
           >
             <ChevronLeft size={16} />
           </Link>
@@ -553,102 +569,102 @@ const DestinationUpsertForm = ({ destination_id, initialValues, isUpdateMode }) 
         onSubmit={handleSubmit(onSubmit)}
         className="min-w-0 space-y-5"
       >
-          <div className="z-100 sticky -top-8 flex min-w-0 items-center justify-between gap-3 rounded-full border border-slate-200 bg-primary/10 backdrop-blur-xl py-2 px-3">
-            <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto">
-              {steps.map((step, index) => {
-                const isActive = activeStep === index;
-                const isComplete = activeStep > index;
-                return (
-                  <button
-                    key={step.id}
-                    type="button"
-                    onClick={() => setActiveStep(index)}
-                    className={`flex h-11 shrink-0 items-center gap-2 rounded-full pr-4 pl-3 text-sm font-semibold transition ${
+        <div className="z-100 sticky -top-8 flex min-w-0 items-center justify-between gap-3 rounded-full border border-slate-200 bg-primary/10 backdrop-blur-xl py-2 px-3">
+          <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto">
+            {steps.map((step, index) => {
+              const isActive = activeStep === index;
+              const isComplete = activeStep > index;
+              return (
+                <button
+                  key={step.id}
+                  type="button"
+                  onClick={() => setActiveStep(index)}
+                  className={`flex h-11 shrink-0 items-center gap-2 rounded-full pr-4 pl-3 text-sm font-semibold transition ${
+                    isActive
+                      ? "bg-white text-slate-900"
+                      : "text-slate-700 hover:bg-white/30"
+                  }`}
+                >
+                  <span
+                    className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
                       isActive
-                        ? "bg-white text-slate-900"
-                        : "text-slate-700 hover:bg-white/30"
+                        ? "bg-primary/10 text-primary"
+                        : isComplete
+                          ? "bg-primary text-white"
+                          : "bg-white/80 text-slate-600"
                     }`}
                   >
-                    <span
-                      className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
-                        isActive
-                          ? "bg-primary/10 text-primary"
-                          : isComplete
-                            ? "bg-primary text-white"
-                            : "bg-white/80 text-slate-600"
-                      }`}
-                    >
-                      {isComplete ? <Check size={13} /> : index + 1}
-                    </span>
-                    {step.title}
-                  </button>
-                );
-              })}
-            </div>
-            <Button
-              type="submit"
-              form="destination-form"
-              disabled={isSaving}
-              className="shrink-0 !rounded-full !pr-4"
-            >
-              {isSaving ? (
-                <Loader2 className="animate-spin" size={16} />
-              ) : (
-                <Save size={16} />
-              )}
-              {isUpdateMode ? "Update" : "Create"}
-            </Button>
+                    {isComplete ? <Check size={13} /> : index + 1}
+                  </span>
+                  {step.title}
+                </button>
+              );
+            })}
           </div>
-
-          <div className="space-y-5">
-            {currentStep.id === "basics" && (
-              <BasicInfo control={control} errors={errors} />
+          <Button
+            type="submit"
+            form="destination-form"
+            disabled={isSaving}
+            className="shrink-0 !rounded-full !pr-4"
+          >
+            {isSaving ? (
+              <Loader2 className="animate-spin" size={16} />
+            ) : (
+              <Save size={16} />
             )}
+            {isUpdateMode ? "Update" : "Create"}
+          </Button>
+        </div>
 
-            {currentStep.id === "planning" && (
-              <PlanningInfo control={control} errors={errors} />
-            )}
+        <div className="space-y-5">
+          {currentStep.id === "basics" && (
+            <BasicInfo control={control} errors={errors} />
+          )}
 
-            {currentStep.id === "media" && (
-              <MediaTags
-                control={control}
-                fields={tags.fields}
-                append={tags.append}
-                remove={tags.remove}
-                setValue={setValue}
-              />
-            )}
+          {currentStep.id === "planning" && (
+            <PlanningInfo control={control} errors={errors} />
+          )}
 
-            {currentStep.id === "attractions" && (
-              <AttractionInfo
-                control={control}
-                fields={attractions.fields}
-                append={attractions.append}
-                remove={attractions.remove}
-                setValue={setValue}
-              />
-            )}
+          {currentStep.id === "media" && (
+            <MediaTags
+              control={control}
+              fields={tags.fields}
+              append={tags.append}
+              remove={tags.remove}
+              setValue={setValue}
+            />
+          )}
 
-            {currentStep.id === "activities" && (
-              <ActivityInfo
-                control={control}
-                fields={activities.fields}
-                append={activities.append}
-                remove={activities.remove}
-                setValue={setValue}
-              />
-            )}
+          {currentStep.id === "attractions" && (
+            <AttractionInfo
+              control={control}
+              fields={attractions.fields}
+              append={attractions.append}
+              remove={attractions.remove}
+              setValue={setValue}
+            />
+          )}
 
-            {currentStep.id === "cuisines" && (
-              <CuisineInfo
-                control={control}
-                fields={cuisines.fields}
-                append={cuisines.append}
-                remove={cuisines.remove}
-                setValue={setValue}
-              />
-            )}
-          </div>
+          {currentStep.id === "activities" && (
+            <ActivityInfo
+              control={control}
+              fields={activities.fields}
+              append={activities.append}
+              remove={activities.remove}
+              setValue={setValue}
+            />
+          )}
+
+          {currentStep.id === "cuisines" && (
+            <CuisineInfo
+              control={control}
+              fields={cuisines.fields}
+              append={cuisines.append}
+              remove={cuisines.remove}
+              setValue={setValue}
+            />
+          )}
+        </div>
       </form>
     </section>
   );
@@ -673,7 +689,9 @@ const DestinationUpsertPage = () => {
   }
 
   const initialValues =
-    isUpdateMode && destination ? mapDestinationToForm(destination) : defaultValues;
+    isUpdateMode && destination
+      ? mapDestinationToForm(destination)
+      : defaultValues;
 
   return (
     <DestinationUpsertForm

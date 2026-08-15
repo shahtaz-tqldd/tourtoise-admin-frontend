@@ -2,7 +2,7 @@ import React from "react";
 import { Controller } from "react-hook-form";
 
 // components
-import { Button } from "@/components/ui/button";
+import { Button, DeleteButton } from "@/components/ui/button";
 import { FloatingInput } from "@/components/ui/input";
 import { SelectField } from "@/components/ui/select";
 import { StepShell } from "./_common";
@@ -29,6 +29,7 @@ const MediaTags = ({ control, fields, append, remove, setValue }) => {
                 type="button"
                 variant="outline"
                 size="sm"
+                className="rounded-full"
                 onClick={() => append({ name: "", category: "" })}
               >
                 <Plus size={15} />
@@ -39,13 +40,17 @@ const MediaTags = ({ control, fields, append, remove, setValue }) => {
               {fields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 md:grid-cols-[1fr_220px_auto]"
+                  className="flx gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-[1fr_220px_auto]"
                 >
                   <Controller
                     name={`tags.${index}.name`}
                     control={control}
                     render={({ field }) => (
-                      <FloatingInput {...field} label="Tag Name" />
+                      <FloatingInput
+                        {...field}
+                        label="Tag Name"
+                        className="flex-1"
+                      />
                     )}
                   />
                   <SelectField
@@ -53,17 +58,12 @@ const MediaTags = ({ control, fields, append, remove, setValue }) => {
                     name={`tags.${index}.category`}
                     label="Category"
                     options={TAG_CATEGORIES}
+                    className="max-w-[180px] w-full"
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="h-[54px] w-[54px] self-start"
+                  <DeleteButton
                     onClick={() => remove(index)}
                     disabled={fields.length === 1}
-                  >
-                    <Trash2 size={16} />
-                  </Button>
+                  />
                 </div>
               ))}
             </div>

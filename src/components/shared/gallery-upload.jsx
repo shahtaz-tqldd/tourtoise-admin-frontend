@@ -4,6 +4,8 @@ import { useWatch } from "react-hook-form";
 
 import { ImagePlus, Trash2 } from "lucide-react";
 import { useFilePreviews } from "@/lib/file-preview";
+import { Text, Title } from "../ui/typography";
+import Card from "../ui/card";
 
 const GalleryUploader = ({
   control,
@@ -91,10 +93,16 @@ const GalleryUploader = ({
   };
 
   return (
-    <div className="space-y-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+    <Card>
+      <div className="mb-6">
+        <Title variant="xs">Cover and Image Gallery</Title>
+        <Text variant="sm" className="mt-1">
+          Upload High resulation images within max 1mb size
+        </Text>
+      </div>
       <div>
         <div
-          className={`relative aspect-[16/9] overflow-hidden rounded-xl border ${
+          className={`relative aspect-[16/9] overflow-hidden rounded-3xl border ${
             activeCover
               ? "border-slate-200 bg-white"
               : "border-dashed border-slate-300 bg-white"
@@ -112,7 +120,7 @@ const GalleryUploader = ({
                   <Button
                     type="button"
                     size="sm"
-                    className="bg-white text-slate-800 shadow-sm hover:bg-slate-100"
+                    className="h-10 bg-white text-slate-800 shadow-sm hover:bg-slate-100 rounded-full"
                     onClick={openCoverPicker}
                   >
                     <ImagePlus size={15} />
@@ -123,6 +131,7 @@ const GalleryUploader = ({
                     variant="outline"
                     size="sm"
                     onClick={removeCover}
+                    className="size-10 rounded-full bg-red-600 text-white border-2 border-white hover:bg-red-500 hover:text-white backdrop-blur-sm"
                   >
                     <Trash2 size={15} />
                   </Button>
@@ -156,13 +165,13 @@ const GalleryUploader = ({
         />
       </div>
 
-      <div>
+      <div className="mt-6">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-slate-800">
               Gallery Images
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="mt-1 text-xs text-slate-500">
               Add up to {top_k} square gallery images.
             </p>
           </div>
@@ -171,7 +180,7 @@ const GalleryUploader = ({
           </span>
         </div>
 
-        <div className="grid grid-cols-4 gap-3">
+        <div className="flex flex-wrap gap-4">
           {existingGalleryImages.map((image, index) => (
             <div
               key={image.id || image.url}
@@ -199,7 +208,7 @@ const GalleryUploader = ({
           {galleryPreviews.map((preview, index) => (
             <div
               key={preview.url}
-              className="group relative aspect-square overflow-hidden rounded-lg border border-slate-200 bg-white"
+              className="size-36 group relative aspect-square overflow-hidden rounded-2xl border border-slate-200 bg-white"
             >
               <img
                 src={preview.url}
@@ -221,11 +230,11 @@ const GalleryUploader = ({
             <button
               type="button"
               onClick={openGalleryPicker}
-              className="flex aspect-square flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white px-3 text-center text-slate-500 transition hover:border-primary hover:bg-primary/5 hover:text-primary"
+              className="size-36 flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white px-3 text-center text-slate-500 transition hover:border-primary hover:bg-primary/5 hover:text-primary"
             >
-              <ImagePlus size={24} />
-              <span className="mt-2 text-xs font-semibold text-slate-800">
-                Upload
+              <ImagePlus size={24} className="text-primary"/>
+              <span className="mt-2 text-xs font-semibold text-slate-600">
+                Upload Gallery Image
               </span>
             </button>
           )}
@@ -240,7 +249,7 @@ const GalleryUploader = ({
           onChange={addGalleryImages}
         />
       </div>
-    </div>
+    </Card>
   );
 };
 

@@ -18,6 +18,7 @@ import Pagination from "./pagination";
 import DeleteDialog from "../dialog/delete-dialog";
 import RetrainDialog from "../dialog/retrain-dialog";
 import { useState } from "react";
+import { Checkbox } from "../ui/checkbox";
 
 function TableSkeleton({ columns, rows = 5 }) {
   return Array.from({ length: rows }).map((_, rowIndex) => (
@@ -57,6 +58,8 @@ const ReusableTable = ({
   deleteLoading,
   retrainLoading,
   className,
+  selectedIds = [],
+  onSelectedIdsChange,
 }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [retrainDialogOpen, setRetrainDialogOpen] = useState(false);
@@ -90,6 +93,24 @@ const ReusableTable = ({
   const itemStart = totalItems ? (page - 1) * pageSize + 1 : 0;
   const itemEnd = Math.min(page * pageSize, totalItems || 0);
   const shouldShowPagination = totalItems > pageSize;
+  const selectable = Boolean(onSelectedIdsChange);
+  const pageIds = data?.map((item) => item.id).filter(Boolean) || [];
+  const selectedSet = new Set(selectedIds);
+  const allPageSelected =
+    pageIds.length > 0 && pageIds.every((id) => selectedSet.has(id));
+  const somePageSelected = pageIds.some((id) => selectedSet.has(id));
+
+  const togglePage = (checked) => {
+    const next = new Set(selectedIds);
+    pageIds.forEach((id) => (checked ? next.add(id) : next.delete(id)));
+    onSelectedIdsChange([...next]);
+  };
+
+  const toggleRow = (id, checked) => {
+    const next = new Set(selectedIds);
+    checked ? next.add(id) : next.delete(id);
+    onSelectedIdsChange([...next]);
+  };
 
   return (
     <section className={className}>
@@ -97,6 +118,21 @@ const ReusableTable = ({
         <Table>
           <TableHeader className="bg-slate-50/90">
             <TableRow className="border-slate-200 hover:bg-transparent">
+              {selectable && (
+                <TableHead className="h-14 w-12 px-5">
+                  <Checkbox
+                    aria-label="Select all rows on this page"
+                    checked={
+                      allPageSelected
+                        ? true
+                        : somePageSelected
+                          ? "indeterminate"
+                          : false
+                    }
+                    onCheckedChange={(checked) => togglePage(checked === true)}
+                  />
+                </TableHead>
+              )}
               {columns.map((column, i) => (
                 <TableHead
                   key={column.accessorKey}
@@ -112,12 +148,19 @@ const ReusableTable = ({
           <TableBody>
             {isLoading ? (
               <TableSkeleton
-                columns={columns}
+                columns={
+                  selectable
+                    ? [{ header: "Select", accessorKey: "selection" }, ...columns]
+                    : columns
+                }
                 rows={Math.min(pageSize || 5, 5)}
               />
             ) : !hasData ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={columns.length} className="h-56 p-5">
+                <TableCell
+                  colSpan={columns.length + (selectable ? 1 : 0)}
+                  className="h-56 p-5"
+                >
                   <div className="flex h-full flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 text-center">
                     <p className="text-sm font-semibold text-slate-700">
                       No entry found
@@ -131,9 +174,20 @@ const ReusableTable = ({
             ) : (
               data.map((item, i) => (
                 <TableRow
-                  key={i}
+                  key={item.id || i}
                   className="border-slate-100 transition-colors hover:bg-primary/5"
                 >
+                  {selectable && (
+                    <TableCell className="w-12 px-5 py-4">
+                      <Checkbox
+                        aria-label={`Select ${item.raw_name || item.id}`}
+                        checked={selectedSet.has(item.id)}
+                        onCheckedChange={(checked) =>
+                          toggleRow(item.id, checked === true)
+                        }
+                      />
+                    </TableCell>
+                  )}
                   {columns.map((column, j) => (
                     <TableCell
                       key={j}

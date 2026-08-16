@@ -1,6 +1,6 @@
 import { decodeJWT } from "@/lib/jwt-decoder";
 
-export const setAuthCookie = (auth, name = "tourtoise", path = "/") => {
+export const setAuthCookie = (auth, name = "tourtoise_admin", path = "/") => {
   const { accessToken, refreshToken } = auth;
 
   try {
@@ -33,7 +33,7 @@ export const setAuthCookie = (auth, name = "tourtoise", path = "/") => {
   }
 };
 
-export const getAuthCookie = (name = "tourtoise") => {
+export const getAuthCookie = (name = "tourtoise_admin") => {
   const getCookie = (cookieName) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${cookieName}=`);
@@ -57,7 +57,7 @@ export const getAuthCookie = (name = "tourtoise") => {
   };
 };
 
-export const removeAuthCookie = (name = "tourtoise", path = "/") => {
+export const removeAuthCookie = (name = "tourtoise_admin", path = "/") => {
   const cookieFlags = import.meta.env.PROD
     ? "; Secure; SameSite=Strict"
     : "; SameSite=Strict";
@@ -71,7 +71,7 @@ export const removeAuthCookie = (name = "tourtoise", path = "/") => {
 };
 
 // New function to check if user is authenticated
-export const isAuthenticated = (name = "tourtoise") => {
+export const isAuthenticated = (name = "tourtoise_admin") => {
   const { accessToken, refreshToken, isExpired } = getAuthCookie(name);
 
   if (!accessToken && !refreshToken) {
